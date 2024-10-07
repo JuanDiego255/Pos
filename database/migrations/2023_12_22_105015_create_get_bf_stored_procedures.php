@@ -14,16 +14,19 @@ class CreateGetBfStoredProcedures extends Migration
      */
     public function up()
     {
-        DB::unprepared("DROP PROCEDURE IF EXISTS get_bf;");
+        DB::unprepared("DROP FUNCTION IF EXISTS get_bf(BIGINT);");
         DB::unprepared(
-            'CREATE PROCEDURE get_bf(
-                IN idfactura BIGINT
-            )
-            BEGIN
-                SELECT * FROM billings 
-                WHERE id=idfactura;
-            END;');
+            'CREATE FUNCTION get_bf(idfactura BIGINT)
+        RETURNS TABLE(id BIGINT, column1 TYPE, column2 TYPE, ...) AS $$
+        BEGIN
+            RETURN QUERY 
+            SELECT * FROM billings 
+            WHERE id = idfactura;
+        END;
+        $$ LANGUAGE plpgsql;'
+        );
     }
+
 
     /**
      * Reverse the migrations.
