@@ -18,10 +18,7 @@ class CreatePermissionTables extends Migration
         $columnNames = config('permission.column_names');
         $teams = config('permission.teams');
         Schema::drop($tableNames['model_has_permissions']);
-        Schema::drop($tableNames['permissions']);
-        Schema::drop($tableNames['model_has_roles']);
-        Schema::drop($tableNames['role_has_permissions']);
-        Schema::drop($tableNames['roles']); 
+        Schema::drop($tableNames['permissions']); 
         if (empty($tableNames)) {
             throw new \Exception('Error: config/permission.php not loaded. Run [php artisan config:clear] and try again.');
         }
