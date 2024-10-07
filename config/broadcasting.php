@@ -40,7 +40,7 @@ return [
                 'host'      => env('PUSHER_HOST'),
                 'useTLS'    => false,
                 'port'      => 6001,
-                'schema'    => 'http'
+                'schema'    => 'https'
             ],
         ],
 
