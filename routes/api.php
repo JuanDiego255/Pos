@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +19,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::post('/create-order', [OrderController::class, 'createOrderFromAPI']);
+Route::post('/create-products', [ProductController::class, 'insertProductFromAPI']);
+Route::post('/update-products', [ProductController::class, 'updateProductFromAPI']);
+Route::post('/delete-products', [ProductController::class, 'deleteProductFromAPI']);

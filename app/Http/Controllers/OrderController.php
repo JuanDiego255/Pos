@@ -346,7 +346,7 @@ class OrderController extends Controller
         $html_totales       = '';
         $contador           = 0;
         $idpais             = (Business::where('id', 1)->first()->idpais == null) ? 4 : Business::where('id', 1)->first()->idpais;
-        $data["moneda_pais"]= CountryU::where('id', $idpais)->first()->signo;
+        $data["moneda_pais"] = CountryU::where('id', $idpais)->first()->signo;
 
         if (!empty($cart[$idtable]['products'])) {
             foreach ($cart[$idtable]['products'] as $i => $product) {
@@ -375,16 +375,16 @@ class OrderController extends Controller
         $html_totales   .= '<div class="invoice-calculations">
                                         <div class="d-flex justify-content-between">
                                             <span class="w-px-100">OP. Gravadas:</span>
-                                            <span class="fw-medium">'. $data["moneda_pais"] .'' . number_format(($cart[$idtable]['exonerada'] + $cart[$idtable]['gravada'] + $cart[$idtable]['inafecta']), 2, ".", "") . '</span>
+                                            <span class="fw-medium">' . $data["moneda_pais"] . '' . number_format(($cart[$idtable]['exonerada'] + $cart[$idtable]['gravada'] + $cart[$idtable]['inafecta']), 2, ".", "") . '</span>
                                         </div>
                                         <div class="d-flex justify-content-between">
                                             <span class="w-px-100">IGV:</span>
-                                            <span class="fw-medium">'. $data["moneda_pais"] .'' . number_format($cart[$idtable]['igv'], 2, ".", "") . '</span>
+                                            <span class="fw-medium">' . $data["moneda_pais"] . '' . number_format($cart[$idtable]['igv'], 2, ".", "") . '</span>
                                         </div>
                                         <hr>
                                         <div class="d-flex justify-content-between">
                                             <span class="w-px-100">Total:</span>
-                                            <span class="fw-medium">'. $data["moneda_pais"] .'' . number_format($cart[$idtable]['total'], 2, ".", "") . '</span>
+                                            <span class="fw-medium">' . $data["moneda_pais"] . '' . number_format($cart[$idtable]['total'], 2, ".", "") . '</span>
                                         </div>
                                     </div>';
 
@@ -634,6 +634,95 @@ class OrderController extends Controller
         ]);
     }
 
+    public function createOrderFromAPI(Request $request)
+    {
+        // Validar los datos de la solicitud
+        $request->validate([
+            'idtable' => 'required|integer',
+            'products' => 'required|array',
+            'products.*.id' => 'required|integer',
+            'products.*.cantidad' => 'required|integer',
+            'products.*.precio_venta' => 'required|numeric',
+            'observaciones' => 'nullable|string',
+        ]);
+
+        $idtable = $request->input('idtable');
+        $observaciones = trim($request->input('observaciones'));
+        $products = $request->input('products');
+        $idusuario = Auth::user()->id; // Puedes ajustar esto si necesitas otro usuario
+
+        // Simular carrito de compras
+        $cart = [
+            $idtable => [
+                'products' => $products,
+                'total' => array_sum(array_column($products, 'precio_venta')),
+                'igv' => 18.00, // Puedes ajustar el cálculo de IGV
+                'exonerada' => 0,
+                'inafecta' => 0,
+                'gravada' => array_sum(array_column($products, 'precio_venta')),
+            ]
+        ];
+
+        // Crear orden en la tabla 'orders'
+        $order = Order::create([
+            'fecha' => date('Y-m-d'),
+            'hora' => date('H:i:s'),
+            'exonerada' => $cart[$idtable]['exonerada'],
+            'inafecta' => $cart[$idtable]['inafecta'],
+            'gravada' => $cart[$idtable]['gravada'],
+            'anticipo' => "0.00",
+            'igv' => $cart[$idtable]['igv'],
+            'gratuita' => "0.00",
+            'otros_cargos' => "0.00",
+            'total' => $cart[$idtable]['total'],
+            'observaciones' => $observaciones,
+            'idusuario' => $idusuario,
+            'is_delivery' => 1
+        ]);
+
+        $idorden = $order->id;
+
+        // Insertar detalles de la orden
+        foreach ($products as $product) {
+            DetailOrder::create([
+                'idorden' => $idorden,
+                'idproducto' => $product['id'],
+                'cantidad' => $product['cantidad'],
+                'descuento' => 0.00,
+                'igv' => $product['igv'],
+                'id_afectacion_igv' => $product['idcodigo_igv'],
+                'precio_unitario' => $product['precio_venta'],
+                'precio_total' => $product['precio_venta'] * $product['cantidad']
+            ]);
+        }
+
+        // Insertar detalles en la cocina
+        foreach ($products as $product) {
+            DetailKitchenOrder::create([
+                'idorden' => $idorden,
+                'idproducto' => $product['id'],
+                'cantidad' => $product['cantidad'],
+                'descuento' => 0.00,
+                'igv' => $product['igv'],
+                'id_afectacion_igv' => $product['idcodigo_igv'],
+                'precio_unitario' => $product['precio_venta'],
+                'precio_total' => $product['precio_venta'] * $product['cantidad'],
+                'estado_producto' => 0
+            ]);
+        }
+
+        // Ejecutar eventos
+        //event(new NewOrderEvent('Nuevo pedido para entregar ' . $idtable));
+        event(new UpdateKitchenEvent());
+
+        return response()->json([
+            'status' => true,
+            'msg' => 'Pedido creado con éxito',
+            'idorden' => $idorden
+        ]);
+    }
+
+
     public function get_product_order(Request $request)
     {
         if (!$request->ajax()) {
@@ -723,36 +812,30 @@ class OrderController extends Controller
 
         # For comands
         $nuevo_detalle          = [];
-        foreach($products as $product_search)
-        {
+        foreach ($products as $product_search) {
             $producto_db        = DetailOrder::where('idorden', $idorden_db)->where('idproducto', $product_search->idproducto)->first();
-            if($producto_db != NULL)
-            {
-                $nuevo_detalle[] = 
-                [
-                    'id'            => $producto_db["id"],
-                    'idorden'       => $producto_db["idorden"],
-                    'idproducto'    => $producto_db["idproducto"],
-                    'cantidad'      => $producto_db["cantidad"]
-                ];
+            if ($producto_db != NULL) {
+                $nuevo_detalle[] =
+                    [
+                        'id'            => $producto_db["id"],
+                        'idorden'       => $producto_db["idorden"],
+                        'idproducto'    => $producto_db["idproducto"],
+                        'cantidad'      => $producto_db["cantidad"]
+                    ];
             }
         }
 
         $productos_nuevos   = [];
-        foreach ($products as $producto_entrante) 
-        {
-            foreach ($nuevo_detalle as $detalle_orden) 
-            {
-                if($producto_entrante->idproducto == $detalle_orden["idproducto"])
-                {
-                    if ((int) $producto_entrante->cantidad > (int) $detalle_orden["cantidad"]) 
-                    {
+        foreach ($products as $producto_entrante) {
+            foreach ($nuevo_detalle as $detalle_orden) {
+                if ($producto_entrante->idproducto == $detalle_orden["idproducto"]) {
+                    if ((int) $producto_entrante->cantidad > (int) $detalle_orden["cantidad"]) {
                         $productos_nuevos[]   =
-                        [
-                            'idproducto'    => $producto_entrante->idproducto,
-                            'cantidad'      => ((int) $producto_entrante->cantidad - (int) $detalle_orden["cantidad"]),
-                            'precio'        => $producto_entrante->precio
-                        ];
+                            [
+                                'idproducto'    => $producto_entrante->idproducto,
+                                'cantidad'      => ((int) $producto_entrante->cantidad - (int) $detalle_orden["cantidad"]),
+                                'precio'        => $producto_entrante->precio
+                            ];
                     }
                 }
             }
@@ -765,26 +848,22 @@ class OrderController extends Controller
         $output_2       = json_decode($result_2, true);
         $result_array   = array_diff_key($output_1, $output_2);
 
-        foreach($result_array as $result)
-        {
+        foreach ($result_array as $result) {
             $productos_nuevos[]   =
-            [
-                'idproducto'    => $result["idproducto"],
-                'cantidad'      => (int) $result["cantidad"],
-                'precio'        => $result["precio"]
-            ];
+                [
+                    'idproducto'    => $result["idproducto"],
+                    'cantidad'      => (int) $result["cantidad"],
+                    'precio'        => $result["precio"]
+                ];
         }
 
-        if(!empty($productos_nuevos))
-        {
+        if (!empty($productos_nuevos)) {
             $search_to_update       = DetailOrderUpdate::where('idorden', $table->idorden)->get();
-            if(!empty($search_to_update))
-            {
+            if (!empty($search_to_update)) {
                 DetailOrderUpdate::where('idorden', $table->idorden)->delete();
             }
 
-            foreach ($productos_nuevos as $product_update) 
-            {
+            foreach ($productos_nuevos as $product_update) {
                 $search_product         = Product::where('id', $product_update["idproducto"])->first();
                 DetailOrderUpdate::insert([
                     'idorden'           => $table->idorden,
@@ -824,10 +903,10 @@ class OrderController extends Controller
                 'products.codigo_interno as codigo_interno',
                 'units.codigo as unidad'
             )
-            ->join('products', 'detail_order_updates.idproducto', '=', 'products.id')
-            ->join('units', 'products.idunidad', '=', 'units.id')
-            ->where('idorden', $table->idorden)
-            ->get();
+                ->join('products', 'detail_order_updates.idproducto', '=', 'products.id')
+                ->join('units', 'products.idunidad', '=', 'units.id')
+                ->where('idorden', $table->idorden)
+                ->get();
 
             $pdf                = PDF::loadView('admin.orders.register.comanda', $data)->setPaper($customPaper, 'landscape');
             $pdf->save(public_path('files/orders/commands/' . $name));
@@ -843,7 +922,7 @@ class OrderController extends Controller
         $array_ids                  = [];
         $array_precio               = [];
         $array_cantidad             = [];
-        
+
         foreach ($products as $producto) {
             $array_ids[]            = $producto->idproducto;
             $array_precio[]         = $producto->precio;
@@ -893,7 +972,7 @@ class OrderController extends Controller
 
         event(new NewOrderEvent('Nuevo pedido en ' . $table->descripcion));
         event(new UpdateKitchenEvent());
-        
+
         echo json_encode([
             'status'    => true,
             'msg'       => 'Pedido actualizado con éxito',
@@ -1281,12 +1360,14 @@ class OrderController extends Controller
         ]);
     }
 
-    
-    public function kitchen_panel() {
-        return view('admin.orders.kitchen_panel.home');   
+
+    public function kitchen_panel()
+    {
+        return view('admin.orders.kitchen_panel.home');
     }
 
-    public function load_kitchen_orders(Request $request) {
+    public function load_kitchen_orders(Request $request)
+    {
         if (!$request->ajax()) {
             echo json_encode([
                 'status'    => false,
@@ -1297,32 +1378,31 @@ class OrderController extends Controller
         }
 
         $mesas          = Table::select('tables.*')
-                        ->join('orders', 'tables.idorden', 'orders.id')
-                        ->where('tables.estado', 0)
-                        ->orderBy('orders.updated_at', 'DESC')
-                        ->get();
-        
+            ->join('orders', 'tables.idorden', 'orders.id')
+            ->where('tables.estado', 0)
+            ->orderBy('orders.updated_at', 'DESC')
+            ->get();
+
         $productos      = [];
         $html           = '';
 
 
         // Validar si las mesas están vacias
-        if(count($mesas) < 1) {
-            $html .= '<div class="col-md-12"><img class="img-fluid mx-auto" src="'. asset("assets/img/elements/empty-kitchen.png") .'" style="width: 50%; height: 100%;  display: block;"></div>';
-        }
-        else {
-            foreach($mesas as $mesa) {
+        if (count($mesas) < 1) {
+            $html .= '<div class="col-md-12"><img class="img-fluid mx-auto" src="' . asset("assets/img/elements/empty-kitchen.png") . '" style="width: 50%; height: 100%;  display: block;"></div>';
+        } else {
+            foreach ($mesas as $mesa) {
                 $productos[] = DetailKitchenOrder::select('detail_kitchen_orders.*', 'products.descripcion as producto')
-                            ->join('products', 'detail_kitchen_orders.idproducto', 'products.id')
-                            ->where('idorden', $mesa["idorden"])
-                            /* ->orderBy('detail_kitchen_orders.updated_at', 'ASC') */
-                            ->get();
+                    ->join('products', 'detail_kitchen_orders.idproducto', 'products.id')
+                    ->where('idorden', $mesa["idorden"])
+                    /* ->orderBy('detail_kitchen_orders.updated_at', 'ASC') */
+                    ->get();
             }
-            foreach($mesas as $mesa) {
+            foreach ($mesas as $mesa) {
                 $order      = Order::where('id', $mesa["idorden"])->first();
                 $minutos    = $order->time_since_order = Carbon::parse($order->updated_at)->diffInMinutes(Carbon::now());
-    
-    
+
+
                 if ($minutos < 60) {
                     $tiempo = $order->time_since_order = $minutos . ' minutos';
                 } else {
@@ -1330,34 +1410,34 @@ class OrderController extends Controller
                     $minutos = $minutos % 60; // Calcula los minutos restantes
                     $tiempo = $order->time_since_order = $hours . ' horas ' . $minutos . ' minutos';
                 }
-    
+
                 $html .= '<div class="col-md-3 mb-3">
                                     <div class="card mb-6">
                                         <div class="card-title p-3 header-elements alert alert-info">
-                                        <h5 class="m-0 me-2">'. $mesa["descripcion"] .'</h5>
+                                        <h5 class="m-0 me-2">' . $mesa["descripcion"] . '</h5>
                                         <div class="card-header-elements ms-auto">
                                             <span class="fas fa-clock text-muted text-dark"></span>
                                             <span class="text text-muted d-flex">
-                                            <small>'. $tiempo .' </small>
+                                            <small>' . $tiempo . ' </small>
                                             </span>
                                         </div>
                                         </div>
                 <div style="flex: 1 1 auto; padding: 0.6rem 0.6rem">';
-                foreach($productos as $producto) {
-                    foreach($producto as $pro) {
-                        if($mesa["idorden"] == $pro["idorden"]) {
+                foreach ($productos as $producto) {
+                    foreach ($producto as $pro) {
+                        if ($mesa["idorden"] == $pro["idorden"]) {
                             $tachado        = ($pro["estado_producto"] == 0) ? '' : 'text-decoration-line-through text-muted';
                             $pointer        = ($pro["estado_producto"] == 0) ? '' : 'pointer-events: none';
                             $descripcion    = intval($pro["cantidad"]) . ' ' . $pro["producto"];
                             $iddetalle      = $pro["id"];
                             $idproducto     = $pro["idproducto"];
                             $idorden        = $pro["idorden"];
-    
-                            $html .= '<a href="" data-iddetalle="'. $iddetalle .'" data-idproducto="'. $idproducto .'" data-idorden="'. $idorden .'" class="text-dark btn-change-status" style="'. $pointer .'"><p class="card-text mb-2 '. $tachado .'">'. $descripcion .'</p></a>';
+
+                            $html .= '<a href="" data-iddetalle="' . $iddetalle . '" data-idproducto="' . $idproducto . '" data-idorden="' . $idorden . '" class="text-dark btn-change-status" style="' . $pointer . '"><p class="card-text mb-2 ' . $tachado . '">' . $descripcion . '</p></a>';
                         }
                     }
                 }
-    
+
                 $html .= '</div>
                         </div>
                         </div>';
@@ -1370,7 +1450,8 @@ class OrderController extends Controller
         ]);
     }
 
-    public function change_status(Request $request) {
+    public function change_status(Request $request)
+    {
         if (!$request->ajax()) {
             echo json_encode([
                 'status'    => false,
@@ -1664,5 +1745,4 @@ class OrderController extends Controller
         $pdf                = PDF::loadView('admin.orders.register.test_comanda')->setPaper($customPaper, 'landscape');
         return $pdf->stream();
     }
-
 }

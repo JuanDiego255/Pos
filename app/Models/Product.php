@@ -27,6 +27,7 @@ class Product extends Model
         'impuesto',
         'stock',
         'fecha_vencimiento',
-        'opcion'
+        'opcion',
+        'image'
     ];
 }

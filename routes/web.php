@@ -51,7 +51,7 @@ Route::get('/faq'                       , [ExtraController::class, 'faq'])->name
 Route::post('/send-voucher'             , [ExtraController::class, 'send_voucher'])->name('admin.send_voucher'); 
 
 // Business
-Route::get('/business'                  , [BusinessController::class, 'index'])->middleware('can:admin.business')->name('admin.business');
+Route::get('/business'                  , [BusinessController::class, 'index'])->name('admin.business');
 Route::post('/load-ubigeo'              , [BusinessController::class, 'load_ubigeo'])->name('admin.load_ubigeo');
 Route::post('/load-provinces'           , [BusinessController::class, 'load_provinces'])->name('admin.load_provinces');
 Route::post('/load-districts'           , [BusinessController::class, 'load_districts'])->name('admin.load_districts');

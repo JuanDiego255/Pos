@@ -20,8 +20,8 @@ class CreateGetListProductsDataStoredProcedures extends Migration
             BEGIN
                 SELECT products.*, units.descripcion as unidad, units.codigo as codigo_unidad
                 FROM products
-                INNER JOIN units ON products.idunidad = units.id
-                INNER JOIN igv_type_affections ON products.idcodigo_igv = igv_type_affections.id
+                LEFT JOIN units ON products.idunidad = units.id
+                LEFT JOIN igv_type_affections ON products.idcodigo_igv = igv_type_affections.id
                 ORDER BY id DESC;
             END;');
     }
