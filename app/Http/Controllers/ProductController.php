@@ -6,6 +6,7 @@ use App\Exports\DownloadProduct;
 use App\Imports\ProductImport;
 use App\Models\Business;
 use App\Models\CountryU;
+use App\Models\Extras;
 use App\Models\IgvTypeAffection;
 use App\Models\Product;
 use App\Models\Unit;
@@ -343,6 +344,7 @@ class ProductController extends Controller
     //Metodos API
     public function insertProductFromAPI(Request $request)
     {
+        DB::beginTransaction();
         try {
             // Extraer datos de la solicitud
             $descripcion = trim($request->input('descripcion'));
@@ -351,8 +353,8 @@ class ProductController extends Controller
             $id = $request->input('id');
             $precio_venta = $request->input('precio_venta');
             $impuesto = $request->input('impuesto');
+            $extras = $request->input('extras');
             $randomNumbers = str_pad(mt_rand(1, 9999999), 7, '0', STR_PAD_LEFT);
-
             // Crear un nuevo producto y verificar si la inserción fue exitosa
             $product = new Product();
             $product->id = $id;
@@ -370,6 +372,19 @@ class ProductController extends Controller
 
             if ($product->save()) {
                 // Retornar respuesta exitosa si se insertó correctamente
+                if (!empty($extras)) {
+                    foreach ($extras as $extra) {
+                        if (!empty($extra['name']) && !empty($extra['price'])) {
+                            $productExtra = new Extras();
+                            $productExtra->id = $extra['id'];
+                            $productExtra->product_id = $id;
+                            $productExtra->name = $extra['name'];
+                            $productExtra->price = $extra['price'];
+                            $productExtra->save();
+                        }
+                    }
+                }
+                DB::commit();
                 return response()->json([
                     'status' => true,
                     'msg' => 'Registro insertado correctamente',
@@ -384,6 +399,7 @@ class ProductController extends Controller
                 ]);
             }
         } catch (Exception $th) {
+            DB::rollBack();
             // Manejar excepciones y retornar respuesta de error
             return response()->json([
                 'status' => false,
@@ -402,6 +418,7 @@ class ProductController extends Controller
             $marca = $request->input('marca');
             $precio_venta = $request->input('precio_venta');
             $impuesto = $request->input('impuesto');
+            $extras = $request->input('extras');
 
             // Buscar el producto existente
             $product = Product::find($id);
@@ -426,6 +443,25 @@ class ProductController extends Controller
 
             if ($product->save()) {
                 // Retornar respuesta exitosa si se actualizó correctamente
+                if (!empty($extras)) {
+                    foreach ($extras as $extra) {
+                        // Verificar si el extra tiene un ID, si no tiene se crea uno nuevo
+                        if (isset($extra['id']) && !empty($extra['id'])) {
+                            // Actualizar el extra existente
+                            Extras::where('id', $extra['id'])->update([
+                                'name' => $extra['name'],
+                                'price' => $extra['price']
+                            ]);
+                        } else {
+                            // Crear un nuevo extra si no existe
+                            $newExtra = new Extras();
+                            $newExtra->product_id = $product->id; // Aquí utilizamos product_id
+                            $newExtra->name = $extra['name'];
+                            $newExtra->price = $extra['price'];
+                            $newExtra->save();
+                        }
+                    }
+                }
                 return response()->json([
                     'status' => true,
                     'msg' => 'Producto actualizado correctamente',
