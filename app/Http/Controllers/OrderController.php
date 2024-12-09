@@ -18,8 +18,10 @@ use App\Models\DetailOrder;
 use App\Models\DetailOrderUpdate;
 use App\Models\DetailPayment;
 use App\Models\DetailSaleNote;
+use App\Models\Extras;
 use App\Models\IdentityDocumentType;
 use App\Models\IgvTypeAffection;
+use App\Models\Logs;
 use App\Models\Order;
 use App\Models\PayMode;
 use App\Models\Product;
@@ -54,7 +56,16 @@ class OrderController extends Controller
 
     public function get()
     {
-        $orders         = DB::select("CALL get_list_orders()");
+        $orders = Order::select(
+            'orders.*',
+            DB::raw('IFNULL(users.user, "Sin Mesero") as mesero'), // Reemplaza usuario NULL
+            DB::raw('IFNULL(tables.descripcion, "N/A") as mesa')   // Reemplaza mesa NULL
+        )
+            ->leftJoin('users', 'orders.idusuario', '=', 'users.id') // LEFT JOIN para incluir órdenes sin usuario
+            ->leftJoin('tables', 'orders.idmesa', '=', 'tables.id') // LEFT JOIN para incluir órdenes sin mesa
+            ->orderBy('orders.updated_at', 'DESC')
+            ->get();
+
         return Datatables()
             ->of($orders)
             ->addColumn('fecha', function ($orders) {
@@ -84,7 +95,7 @@ class OrderController extends Controller
                 $idtipo_documento   = $orders->idtipo_documento;
                 $idventa            = $orders->idventa;
                 $estado             = $orders->estado;
-                $idmesa             = $orders->idmesa;
+                $idmesa             = $orders->idmesa ?? 'delivery';
                 $disabled           = ($estado == 2) ? 'disabled' : '';
                 $btn    = '';
                 $btn    = '<div class="dropdown">
@@ -102,7 +113,7 @@ class OrderController extends Controller
                                         <span>Anular Pedido</span>
                                         </a>
                                         <a class="dropdown-item btn-gen" href="javascript:void(0);" data-id="' . $id . '"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-save mr-50 menu-icon"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                                        <span>Generar Comprobante</span></a>';
+                                        <span>Generar Comprobante (Cancelar)</span></a>';
                 } elseif ($estado == 1) {
                     $btn .= '<a class="dropdown-item btn-print-account" href="javascript:void(0);" data-id="' . $id . '"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-printer mr-50 menu-icon"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                                         <span>Pre Cuenta</span></a>
@@ -117,7 +128,6 @@ class OrderController extends Controller
             ->rawColumns(['fecha', 'estado', 'acciones'])
             ->make(true);
     }
-
     public function print_command(Request $request)
     {
         if (!$request->ajax()) {
@@ -636,90 +646,79 @@ class OrderController extends Controller
 
     public function createOrderFromAPI(Request $request)
     {
-        // Validar los datos de la solicitud
-        $request->validate([
-            'idtable' => 'required|integer',
-            'products' => 'required|array',
-            'products.*.id' => 'required|integer',
-            'products.*.cantidad' => 'required|integer',
-            'products.*.precio_venta' => 'required|numeric',
-            'observaciones' => 'nullable|string',
-        ]);
-
-        $idtable = $request->input('idtable');
-        $observaciones = trim($request->input('observaciones'));
-        $products = $request->input('products');
-        $idusuario = Auth::user()->id; // Puedes ajustar esto si necesitas otro usuario
-
-        // Simular carrito de compras
-        $cart = [
-            $idtable => [
-                'products' => $products,
-                'total' => array_sum(array_column($products, 'precio_venta')),
-                'igv' => 18.00, // Puedes ajustar el cálculo de IGV
+        $products = $request->products;
+        $idusuario = 2; //Usuario ventas
+        try {
+            DB::beginTransaction();
+            $order = Order::create([
+                'fecha' => date('Y-m-d'),
+                'hora' => date('H:i:s'),
                 'exonerada' => 0,
                 'inafecta' => 0,
-                'gravada' => array_sum(array_column($products, 'precio_venta')),
-            ]
-        ];
+                'gravada' => 0,
+                'anticipo' => "0.00",
+                'igv' => 0,
+                'gratuita' => "0.00",
+                'otros_cargos' => "0.00",
+                'total' => $request->total,
+                'observaciones' => $request->notes,
+                'idusuario' => $idusuario,
+                'is_delivery' => 1,
+                'estado' => 0
+            ]);
 
-        // Crear orden en la tabla 'orders'
-        $order = Order::create([
-            'fecha' => date('Y-m-d'),
-            'hora' => date('H:i:s'),
-            'exonerada' => $cart[$idtable]['exonerada'],
-            'inafecta' => $cart[$idtable]['inafecta'],
-            'gravada' => $cart[$idtable]['gravada'],
-            'anticipo' => "0.00",
-            'igv' => $cart[$idtable]['igv'],
-            'gratuita' => "0.00",
-            'otros_cargos' => "0.00",
-            'total' => $cart[$idtable]['total'],
-            'observaciones' => $observaciones,
-            'idusuario' => $idusuario,
-            'is_delivery' => 1
-        ]);
+            $idorden = $order->id;
 
-        $idorden = $order->id;
+            // Insertar detalles de la orden
+            foreach ($products as $product) {
+                DetailOrder::create([
+                    'idorden' => $idorden,
+                    'idproducto' => $product['item_id'],
+                    'extras' => $product['extras_id'],
+                    'cantidad' => $product['qty'],
+                    'descuento' => 0.00,
+                    'igv' => 0,
+                    'id_afectacion_igv' => null,
+                    'precio_unitario' => $product['item_price'],
+                    'precio_total' => $product['item_price'] * $product['qty']
+                ]);
+            }
 
-        // Insertar detalles de la orden
-        foreach ($products as $product) {
-            DetailOrder::create([
-                'idorden' => $idorden,
-                'idproducto' => $product['id'],
-                'cantidad' => $product['cantidad'],
-                'descuento' => 0.00,
-                'igv' => $product['igv'],
-                'id_afectacion_igv' => $product['idcodigo_igv'],
-                'precio_unitario' => $product['precio_venta'],
-                'precio_total' => $product['precio_venta'] * $product['cantidad']
+            // Insertar detalles en la cocina
+            foreach ($products as $product) {
+                DetailKitchenOrder::create([
+                    'idorden' => $idorden,
+                    'idproducto' => $product['item_id'],
+                    'cantidad' => $product['qty'],
+                    'extras' => $product['extras_id'],
+                    'descuento' => 0.00,
+                    'igv' => 0,
+                    'id_afectacion_igv' => null,
+                    'precio_unitario' => $product['item_price'],
+                    'precio_total' => $product['item_price'] * $product['qty'],
+                    'estado_producto' => 0
+                ]);
+            }
+            DB::commit();
+            // Ejecutar eventos
+            //event(new NewOrderEvent('Nuevo pedido para entregar ' . $idtable));
+            event(new UpdateKitchenEvent());
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'Pedido creado con éxito',
+                'idorden' => $idorden
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            $fail = new Logs();
+            $fail->log = $th->getMessage();
+            $fail->save();
+            return response()->json([
+                'status' => false,
+                'msg' => $th->getMessage()
             ]);
         }
-
-        // Insertar detalles en la cocina
-        foreach ($products as $product) {
-            DetailKitchenOrder::create([
-                'idorden' => $idorden,
-                'idproducto' => $product['id'],
-                'cantidad' => $product['cantidad'],
-                'descuento' => 0.00,
-                'igv' => $product['igv'],
-                'id_afectacion_igv' => $product['idcodigo_igv'],
-                'precio_unitario' => $product['precio_venta'],
-                'precio_total' => $product['precio_venta'] * $product['cantidad'],
-                'estado_producto' => 0
-            ]);
-        }
-
-        // Ejecutar eventos
-        //event(new NewOrderEvent('Nuevo pedido para entregar ' . $idtable));
-        event(new UpdateKitchenEvent());
-
-        return response()->json([
-            'status' => true,
-            'msg' => 'Pedido creado con éxito',
-            'idorden' => $idorden
-        ]);
     }
 
 
@@ -1365,7 +1364,6 @@ class OrderController extends Controller
     {
         return view('admin.orders.kitchen_panel.home');
     }
-
     public function load_kitchen_orders(Request $request)
     {
         if (!$request->ajax()) {
@@ -1377,70 +1375,82 @@ class OrderController extends Controller
             return;
         }
 
-        $mesas          = Table::select('tables.*')
-            ->join('orders', 'tables.idorden', 'orders.id')
-            ->where('tables.estado', 0)
+        // Obtener todas las órdenes, incluyendo las que no tienen mesa asignada
+        $orders = Order::select('orders.*')
+            ->leftJoin('tables', 'orders.id', '=', 'tables.idorden')
             ->orderBy('orders.updated_at', 'DESC')
             ->get();
 
-        $productos      = [];
-        $html           = '';
+        $productos = [];
+        $html = '';
 
-
-        // Validar si las mesas están vacias
-        if (count($mesas) < 1) {
-            $html .= '<div class="col-md-12"><img class="img-fluid mx-auto" src="' . asset("assets/img/elements/empty-kitchen.png") . '" style="width: 50%; height: 100%;  display: block;"></div>';
+        // Validar si las órdenes están vacías
+        if ($orders->isEmpty()) {
+            $html .= '<div class="col-md-12"><img class="img-fluid mx-auto" src="' . asset("assets/img/elements/empty-kitchen.png") . '" style="width: 50%; height: 100%; display: block;"></div>';
         } else {
-            foreach ($mesas as $mesa) {
-                $productos[] = DetailKitchenOrder::select('detail_kitchen_orders.*', 'products.descripcion as producto')
-                    ->join('products', 'detail_kitchen_orders.idproducto', 'products.id')
-                    ->where('idorden', $mesa["idorden"])
-                    /* ->orderBy('detail_kitchen_orders.updated_at', 'ASC') */
+            foreach ($orders as $order) {
+                // Obtener los productos relacionados con la orden
+                $productos[$order->id] = DetailKitchenOrder::select('detail_kitchen_orders.*', 'products.descripcion as producto')
+                    ->join('products', 'detail_kitchen_orders.idproducto', '=', 'products.id')
+                    ->where('idorden', $order->id)
                     ->get();
             }
-            foreach ($mesas as $mesa) {
-                $order      = Order::where('id', $mesa["idorden"])->first();
-                $minutos    = $order->time_since_order = Carbon::parse($order->updated_at)->diffInMinutes(Carbon::now());
 
+            foreach ($orders as $order) {
+                $mesa = Table::where('idorden', $order->id)->first();
+                $descripcionMesa = $mesa ? $mesa->descripcion : 'PREPARAR (SIN MESA)';
+                $minutos = Carbon::parse($order->updated_at)->diffInMinutes(Carbon::now());
 
-                if ($minutos < 60) {
-                    $tiempo = $order->time_since_order = $minutos . ' minutos';
-                } else {
-                    $hours = intdiv($minutos, 60); // Calcula las horas
-                    $minutos = $minutos % 60; // Calcula los minutos restantes
-                    $tiempo = $order->time_since_order = $hours . ' horas ' . $minutos . ' minutos';
-                }
+                $tiempo = $minutos < 60
+                    ? $minutos . ' minutos'
+                    : intdiv($minutos, 60) . ' horas ' . ($minutos % 60) . ' minutos';
 
                 $html .= '<div class="col-md-3 mb-3">
-                                    <div class="card mb-6">
-                                        <div class="card-title p-3 header-elements alert alert-info">
-                                        <h5 class="m-0 me-2">' . $mesa["descripcion"] . '</h5>
-                                        <div class="card-header-elements ms-auto">
-                                            <span class="fas fa-clock text-muted text-dark"></span>
-                                            <span class="text text-muted d-flex">
+                            <div class="card mb-6">
+                                <div class="card-title p-3 header-elements alert alert-info">
+                                    <h5 class="m-0 me-2">' . $descripcionMesa . '</h5>
+                                    <div class="card-header-elements ms-auto">
+                                        <span class="fas fa-clock text-muted text-dark"></span>
+                                        <span class="text text-muted d-flex">
                                             <small>' . $tiempo . ' </small>
-                                            </span>
-                                        </div>
-                                        </div>
-                <div style="flex: 1 1 auto; padding: 0.6rem 0.6rem">';
-                foreach ($productos as $producto) {
-                    foreach ($producto as $pro) {
-                        if ($mesa["idorden"] == $pro["idorden"]) {
-                            $tachado        = ($pro["estado_producto"] == 0) ? '' : 'text-decoration-line-through text-muted';
-                            $pointer        = ($pro["estado_producto"] == 0) ? '' : 'pointer-events: none';
-                            $descripcion    = intval($pro["cantidad"]) . ' ' . $pro["producto"];
-                            $iddetalle      = $pro["id"];
-                            $idproducto     = $pro["idproducto"];
-                            $idorden        = $pro["idorden"];
+                                        </span>
+                                    </div>
+                                </div>
+                                <div style="flex: 1 1 auto; padding: 0.6rem 0.6rem">';
 
-                            $html .= '<a href="" data-iddetalle="' . $iddetalle . '" data-idproducto="' . $idproducto . '" data-idorden="' . $idorden . '" class="text-dark btn-change-status" style="' . $pointer . '"><p class="card-text mb-2 ' . $tachado . '">' . $descripcion . '</p></a>';
+                // Mostrar las notas de la orden, si existen
+                if (!empty($order->observaciones)) {
+                    $html .= '<p class="card-text text-muted mb-3"><strong>Notas para esta orden:</strong> ' . $order->observaciones . '</p>';
+                }
+
+                if (isset($productos[$order->id])) {
+                    foreach ($productos[$order->id] as $pro) {
+                        $tachado = $pro->estado_producto == 0 ? '' : 'text-decoration-line-through text-muted';
+                        $pointer = $pro->estado_producto == 0 ? '' : 'pointer-events: none';
+                        $descripcion = intval($pro->cantidad) . ' ' . $pro->producto;
+                        $iddetalle = $pro->id;
+                        $idproducto = $pro->idproducto;
+                        $idorden = $pro->idorden;
+
+                        $html .= '<a href="" data-iddetalle="' . $iddetalle . '" data-idproducto="' . $idproducto . '" data-idorden="' . $idorden . '" class="text-dark btn-change-status" style="' . $pointer . '"><p class="card-text mb-2 ' . $tachado . '">' . $descripcion . '</p></a>';
+
+                        // Procesar las extras si existen
+                        if (!is_null($pro->extras)) {
+                            $extraIds = explode(',', $pro->extras);
+                            $extras = Extras::whereIn('id', $extraIds)->get();
+
+                            foreach ($extras as $extra) {
+                                $html .= '<p class="card-text text-muted ms-3">
+                                        - ' . $extra->name . ' (₡' . number_format($extra->price, 2) . ')
+                                      </p>';
+                            }
                         }
                     }
                 }
 
                 $html .= '</div>
-                        </div>
-                        </div>';
+                    </div>
+                </div>';
             }
         }
 
@@ -1449,6 +1459,7 @@ class OrderController extends Controller
             'html'      => $html
         ]);
     }
+
 
     public function change_status(Request $request)
     {

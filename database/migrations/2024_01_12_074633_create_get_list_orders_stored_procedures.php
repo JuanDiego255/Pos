@@ -17,14 +17,19 @@ class CreateGetListOrdersStoredProcedures extends Migration
         DB::unprepared("DROP PROCEDURE IF EXISTS get_list_orders;");
         DB::unprepared(
             'CREATE PROCEDURE get_list_orders()
-            BEGIN
-                SELECT orders.*, users.user as mesero, tables.descripcion as  mesa 
-                FROM orders 
-                INNER JOIN users ON orders.idusuario = users.id
-                INNER JOIN tables ON orders.idmesa = tables.id
-                ORDER BY orders.updated_at DESC;
-            END;');
+        BEGIN
+            SELECT 
+                orders.*, 
+                users.user AS mesero, 
+                IFNULL(tables.descripcion, "N/A") AS mesa
+            FROM orders
+            INNER JOIN users ON orders.idusuario = users.id
+            LEFT JOIN tables ON orders.idmesa = tables.id
+            ORDER BY orders.updated_at DESC;
+        END;'
+        );
     }
+
 
     /**
      * Reverse the migrations.

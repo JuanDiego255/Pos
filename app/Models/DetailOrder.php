@@ -18,6 +18,7 @@ class DetailOrder extends Model
         'igv',
         'id_afectacion_igv',
         'precio_unitario',
-        'precio_total'
+        'precio_total',
+        'extras'
     ];
 }

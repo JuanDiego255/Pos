@@ -20,5 +20,6 @@ class DetailKitchenOrder extends Model
         'precio_unitario',
         'precio_total',
         'estado_producto',
+        'extras'
     ];
 }
