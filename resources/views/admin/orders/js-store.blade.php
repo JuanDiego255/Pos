@@ -189,7 +189,7 @@
                     toast_msg(r.msg, r.title, r.type);
                     return;
                 }
-                $('#modalConfirmSale input[name="iddocumento_tipo"]').val(2);
+                $('#modalConfirmSale input[name="iddocumento_tipo"]').val(7);
                 $('#modalConfirmSale input[name="quantity_paying_2"]').val("0");
                 $('#modalConfirmSale input[name="quantity_paying_3"]').val("0");
                 $(`#modalConfirmSale input[name="type_document"][value="7"]`).prop('checked', true);
@@ -472,6 +472,7 @@
             "name": "difference",
             "value": $('#difference').text()
         };
+        console.log(form);
 
         $.ajax({
             url: "{{ route('admin.save_billing_order') }}",

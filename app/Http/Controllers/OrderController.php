@@ -37,6 +37,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\Unit;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -1094,269 +1095,281 @@ class OrderController extends Controller
             ]);
             return;
         }
-        $idorder                = $request->input('idorder');
-        $order                  = Order::where('id', $idorder)->first();
-        $iddocumento_tipo       = $request->input('iddocumento_tipo');
-        $dni_ruc                = $request->input('dni_ruc');
-        $modo_pago              = $request->input('modo_pago');
-        $difference             = $request->input('difference');
-        $serie_sale             = explode('-', $request->input('serie_sale'));
-        $serie                  = $serie_sale[0];
-        $correlativo            = $serie_sale[1];
-        $fecha_emision          = date('Y-m-d');
-        $fecha_vencimiento      = date('Y-m-d');
-        $id_arching             = ArchingCash::where('idcaja', Auth::user()['idcaja'])->where('idusuario', Auth::user()['id'])->latest('id')->first()['id'];
-        // Detail payments
-        $quantity_paying        = number_format($request->input('quantity_paying'), 2, ".", "");
-        $quantity_paying_2      = number_format($request->input('quantity_paying_2'), 2, ".", "");
-        $quantity_paying_3      = number_format($request->input('quantity_paying_3'), 2, ".", "");
-        $pay_mode               = $modo_pago;
-        $pay_mode_2             = $request->input('modo_pago_2');
-        $pay_mode_3             = $request->input('modo_pago_3');
-        $id_sale                = NULL;
-        $detalle                = DetailOrder::select(
-            'detail_orders.*',
-            'products.descripcion as producto',
-            'products.codigo_interno as codigo_interno',
-            'products.idcodigo_igv',
-            'units.codigo as unidad'
-        )
-            ->join('products', 'detail_orders.idproducto', '=', 'products.id')
-            ->join('units', 'products.idunidad', '=', 'units.id')
-            ->join('igv_type_affections', 'products.idcodigo_igv', 'igv_type_affections.id')
-            ->where('detail_orders.idorden', $idorder)
-            ->get();
+        try {
+            DB::beginTransaction();
+            $idorder                = $request->input('idorder');
+            $order                  = Order::where('id', $idorder)->first();
+            $iddocumento_tipo       = $request->input('iddocumento_tipo');
+            $dni_ruc                = $request->input('dni_ruc');
+            $modo_pago              = $request->input('modo_pago');
+            $difference             = $request->input('difference');
+            $serie_sale             = explode('-', $request->input('serie_sale'));
+            $serie                  = $serie_sale[0];
+            $correlativo            = $serie_sale[1];
+            $fecha_emision          = date('Y-m-d');
+            $fecha_vencimiento      = date('Y-m-d');
+            $id_arching             = ArchingCash::where('idcaja', Auth::user()['idcaja'])->where('idusuario', Auth::user()['id'])->latest('id')->first()['id'];
+            // Detail payments
+            $quantity_paying        = number_format($request->input('quantity_paying'), 2, ".", "");
+            $quantity_paying_2      = number_format($request->input('quantity_paying_2'), 2, ".", "");
+            $quantity_paying_3      = number_format($request->input('quantity_paying_3'), 2, ".", "");
+            $pay_mode               = $modo_pago;
+            $pay_mode_2             = $request->input('modo_pago_2');
+            $pay_mode_3             = $request->input('modo_pago_3');
+            $id_sale                = NULL;
+            $detalle                = DetailOrder::select(
+                'detail_orders.*',
+                'products.descripcion as producto',
+                'products.codigo_interno as codigo_interno',
+                'products.idcodigo_igv',
+                'units.codigo as unidad'
+            )
+                ->join('products', 'detail_orders.idproducto', '=', 'products.id')
+                ->join('units', 'products.idunidad', '=', 'units.id')
+                ->leftJoin('igv_type_affections', 'products.idcodigo_igv', 'igv_type_affections.id')
+                ->where('detail_orders.idorden', $idorder)
+                ->get();
 
-        if (empty($dni_ruc)) {
+            if (empty($dni_ruc)) {
+                echo json_encode([
+                    'status'    => false,
+                    'msg'       => 'Seleccione un cliente',
+                    'type'      => 'warning'
+                ]);
+                return;
+            }
+
+            if ($iddocumento_tipo == "7") // NV
+            {
+                SaleNote::insert([
+                    'idtipo_comprobante'    => $iddocumento_tipo,
+                    'serie'                 => $serie,
+                    'correlativo'           => $correlativo,
+                    'fecha_emision'         => $fecha_emision,
+                    'fecha_vencimiento'     => $fecha_vencimiento,
+                    'hora'                  => date('H:i:s'),
+                    'idcliente'             => $dni_ruc,
+                    'idmoneda'              => 3,
+                    'idpago'                => 1,
+                    'modo_pago'             => $modo_pago,
+                    'exonerada'             => $order->exonerada,
+                    'inafecta'              => $order->inafecta,
+                    'gravada'               => $order->gravada,
+                    'anticipo'              => "0.00",
+                    'igv'                   => $order->igv,
+                    'gratuita'              => "0.00",
+                    'otros_cargos'          => "0.00",
+                    'total'                 => $order->total,
+                    'estado'                => 1,
+                    'idusuario'             => Auth::user()['id'],
+                    'idcaja'                => $id_arching,
+                    'vuelto'                => $difference
+                ]);
+
+                $idfactura                  = SaleNote::latest('id')->first()['id'];
+                // Detail
+                foreach ($detalle as $product) {
+                    DetailSaleNote::insert([
+                        'idnotaventa'           => $idfactura,
+                        'idproducto'            => $product['idproducto'],
+                        'cantidad'              => $product['cantidad'],
+                        'descuento'             => 0.0000000000,
+                        'igv'                   => $product["igv"],
+                        'id_afectacion_igv'     => $product['idcodigo_igv'],
+                        'precio_unitario'       => $product['precio_unitario'],
+                        'precio_total'          => ($product['precio_unitario'] * $product['cantidad'])
+                    ]);
+
+                    if ($product["stock"] != NULL) {
+                        Product::where('id', $product["idproducto"])->update([
+                            "stock"  => $product["stock"] - $product["cantidad"]
+                        ]);
+                    }
+                }
+
+                // Insert pay mode
+                if ($quantity_paying != "0.00") {
+                    DetailPayment::insert([
+                        'idtipo_comprobante'    => $iddocumento_tipo,
+                        'idfactura'             => $idfactura,
+                        'idpago'                => $pay_mode,
+                        'monto'                 => $quantity_paying,
+                        'idcaja'                => $id_arching
+                    ]);
+                }
+
+                if ($quantity_paying_2 != "0.00") {
+                    DetailPayment::insert([
+                        'idtipo_comprobante'    => $iddocumento_tipo,
+                        'idfactura'             => $idfactura,
+                        'idpago'                => $pay_mode_2,
+                        'monto'                 => $quantity_paying_2,
+                        'idcaja'                => $id_arching
+                    ]);
+                }
+
+                if ($quantity_paying_3 != "0.00") {
+                    DetailPayment::insert([
+                        'idtipo_comprobante'    => $iddocumento_tipo,
+                        'idfactura'             => $idfactura,
+                        'idpago'                => $pay_mode_3,
+                        'monto'                 => $quantity_paying_3,
+                        'idcaja'                => $id_arching
+                    ]);
+                }
+
+
+                // Gen ticket data to pdf
+                $factura                            = SaleNote::where('id', $idfactura)->first();
+                $ruc                                = Business::where('id', 1)->first()->ruc;
+                $codigo_comprobante                 = TypeDocument::where('id', $factura->idtipo_comprobante)->first()->codigo;
+                $name                               = $ruc . '-' . $codigo_comprobante . '-' . $factura->serie . '-' . $factura->correlativo;
+                $id_sale                            = $idfactura;
+                $this->gen_ticket_sn($idfactura, $name);
+                $ultima_serie                       = Serie::where('idtipo_documento', $iddocumento_tipo)->where('idcaja', Auth::user()['idcaja'])->first();
+                $ultimo_correlativo                 = (int) $ultima_serie->correlativo + 1;
+                $nuevo_correlativo                  = str_pad($ultimo_correlativo, 8, '0', STR_PAD_LEFT);
+                Serie::where('idtipo_documento', $iddocumento_tipo)->where('idcaja', Auth::user()['idcaja'])->update([
+                    'correlativo'   => $nuevo_correlativo
+                ]);
+            } else { // B/F
+                $business                   = Business::where('id', 1)->first();
+                $type_document              = TypeDocument::where('id', $iddocumento_tipo)->first();
+                $client                     = Client::where('id', $dni_ruc)->first();
+                $identity_document          = IdentityDocumentType::where('id', $client->iddoc)->first();
+                $qr                         = $business->ruc . ' | ' . $type_document->codigo . ' | ' . $serie . ' | ' . $correlativo . ' | ' . number_format($order->igv, 2, ".", "") . ' | ' . number_format($order->total, 2, ".", "") . ' | ' . $fecha_emision . ' | ' . $identity_document->codigo . ' | ' . $client->dni_ruc;
+                $name_qr                    = $serie . '-' . $correlativo;
+
+                // Gen Qr
+                QrCode::format('png')
+                    ->size(140)
+                    ->generate($qr, 'files/billings/qr/' . $name_qr . '.png');
+
+                Billing::insert([
+                    'idtipo_comprobante'    => $iddocumento_tipo,
+                    'serie'                 => $serie,
+                    'correlativo'           => $correlativo,
+                    'fecha_emision'         => $fecha_emision,
+                    'fecha_vencimiento'     => $fecha_vencimiento,
+                    'hora'                  => date('H:i:s'),
+                    'idcliente'             => $dni_ruc,
+                    'idmoneda'              => 1,
+                    'idpago'                => 1,
+                    'modo_pago'             => $modo_pago,
+                    'exonerada'             => $order->exonerada,
+                    'inafecta'              => $order->inafecta,
+                    'gravada'               => $order->gravada,
+                    'anticipo'              => "0.00",
+                    'igv'                   => $order->igv,
+                    'gratuita'              => "0.00",
+                    'otros_cargos'          => "0.00",
+                    'total'                 => $order->total,
+                    'cdr'                   => 0,
+                    'anulado'               => 0,
+                    'id_tipo_nota_credito'  => null,
+                    'estado_cpe'            => 0,
+                    'errores'               => null,
+                    'nticket'               => null,
+                    'idusuario'             => Auth::user()['id'],
+                    'idcaja'                => $id_arching,
+                    'vuelto'                => $difference,
+                    'qr'                    => $name_qr . '.png'
+                ]);
+                $idfactura                  = Billing::latest('id')->first()['id'];
+
+                foreach ($detalle as $product) {
+                    DetailBilling::insert([
+                        'idfacturacion'         => $idfactura,
+                        'idproducto'            => $product['idproducto'],
+                        'cantidad'              => $product['cantidad'],
+                        'descuento'             => 0.0000000000,
+                        'igv'                   => $product["igv"],
+                        'id_afectacion_igv'     => $product['idcodigo_igv'],
+                        'precio_unitario'       => $product['precio_unitario'],
+                        'precio_total'          => ($product['precio_unitario'] * $product['cantidad'])
+                    ]);
+
+                    if ($product["stock"] != NULL) {
+                        Product::where('id', $product["idproducto"])->update([
+                            "stock"  => $product["stock"] - $product["cantidad"]
+                        ]);
+                    }
+                }
+
+                // Insert pay mode
+                if ($quantity_paying != "0.00") {
+                    DetailPayment::insert([
+                        'idtipo_comprobante'    => $iddocumento_tipo,
+                        'idfactura'             => $idfactura,
+                        'idpago'                => $pay_mode,
+                        'monto'                 => $quantity_paying,
+                        'idcaja'                => $id_arching
+                    ]);
+                }
+
+                if ($quantity_paying_2 != "0.00") {
+                    DetailPayment::insert([
+                        'idtipo_comprobante'    => $iddocumento_tipo,
+                        'idfactura'             => $idfactura,
+                        'idpago'                => $pay_mode_2,
+                        'monto'                 => $quantity_paying_2,
+                        'idcaja'                => $id_arching
+                    ]);
+                }
+
+                if ($quantity_paying_3 != "0.00") {
+                    DetailPayment::insert([
+                        'idtipo_comprobante'    => $iddocumento_tipo,
+                        'idfactura'             => $idfactura,
+                        'idpago'                => $pay_mode_3,
+                        'monto'                 => $quantity_paying_3,
+                        'idcaja'                => $id_arching
+                    ]);
+                }
+
+                $factura                        = Billing::where('id', $idfactura)->first();
+                $ruc                            = Business::where('id', 1)->first()->ruc;
+                $codigo_comprobante             = TypeDocument::where('id', $factura->idtipo_comprobante)->first()->codigo;
+                $name                           = $ruc . '-' . $codigo_comprobante . '-' . $factura->serie . '-' . $factura->correlativo;
+                $id_sale                        = $idfactura;
+                $this->gen_ticket_b($idfactura, $name);
+                $ultima_serie                       = Serie::where('idtipo_documento', $iddocumento_tipo)->where('idcaja', Auth::user()['idcaja'])->first();
+                $ultimo_correlativo                 = (int) $ultima_serie->correlativo + 1;
+                $nuevo_correlativo                  = str_pad($ultimo_correlativo, 8, '0', STR_PAD_LEFT);
+                Serie::where('idtipo_documento', $iddocumento_tipo)->where('idcaja', Auth::user()['idcaja'])->update([
+                    'correlativo'   => $nuevo_correlativo
+                ]);
+            }
+
+            Order::where('id', $order->id)->update([
+                'estado'            => 1,
+                'idtipo_documento'  => $iddocumento_tipo,
+                'idventa'           => $id_sale
+            ]);
+            Table::where('idorden', $order->id)->update([
+                'estado'    => 1,
+                'idorden'   => NULL
+            ]);
+            DB::commit();
+            event(new UpdateOrderEvent);
+            event(new UpdateKitchenFinishEvent());
+
+
             echo json_encode([
-                'status'    => false,
-                'msg'       => 'Seleccione un cliente',
-                'type'      => 'warning'
+                'status'        => true,
+                'id'            => $id_sale,
+                'pdf'           => $name . '.pdf',
+                'type_document' => $iddocumento_tipo
             ]);
-            return;
-        }
-
-        if ($iddocumento_tipo == "7") // NV
-        {
-            SaleNote::insert([
-                'idtipo_comprobante'    => $iddocumento_tipo,
-                'serie'                 => $serie,
-                'correlativo'           => $correlativo,
-                'fecha_emision'         => $fecha_emision,
-                'fecha_vencimiento'     => $fecha_vencimiento,
-                'hora'                  => date('H:i:s'),
-                'idcliente'             => $dni_ruc,
-                'idmoneda'              => 1,
-                'idpago'                => 1,
-                'modo_pago'             => $modo_pago,
-                'exonerada'             => $order->exonerada,
-                'inafecta'              => $order->inafecta,
-                'gravada'               => $order->gravada,
-                'anticipo'              => "0.00",
-                'igv'                   => $order->igv,
-                'gratuita'              => "0.00",
-                'otros_cargos'          => "0.00",
-                'total'                 => $order->total,
-                'estado'                => 1,
-                'idusuario'             => Auth::user()['id'],
-                'idcaja'                => $id_arching,
-                'vuelto'                => $difference
-            ]);
-
-            $idfactura                  = SaleNote::latest('id')->first()['id'];
-            // Detail
-            foreach ($detalle as $product) {
-                DetailSaleNote::insert([
-                    'idnotaventa'           => $idfactura,
-                    'idproducto'            => $product['idproducto'],
-                    'cantidad'              => $product['cantidad'],
-                    'descuento'             => 0.0000000000,
-                    'igv'                   => $product["igv"],
-                    'id_afectacion_igv'     => $product['idcodigo_igv'],
-                    'precio_unitario'       => $product['precio_unitario'],
-                    'precio_total'          => ($product['precio_unitario'] * $product['cantidad'])
-                ]);
-
-                if ($product["stock"] != NULL) {
-                    Product::where('id', $product["idproducto"])->update([
-                        "stock"  => $product["stock"] - $product["cantidad"]
-                    ]);
-                }
-            }
-
-            // Insert pay mode
-            if ($quantity_paying != "0.00") {
-                DetailPayment::insert([
-                    'idtipo_comprobante'    => $iddocumento_tipo,
-                    'idfactura'             => $idfactura,
-                    'idpago'                => $pay_mode,
-                    'monto'                 => $quantity_paying,
-                    'idcaja'                => $id_arching
-                ]);
-            }
-
-            if ($quantity_paying_2 != "0.00") {
-                DetailPayment::insert([
-                    'idtipo_comprobante'    => $iddocumento_tipo,
-                    'idfactura'             => $idfactura,
-                    'idpago'                => $pay_mode_2,
-                    'monto'                 => $quantity_paying_2,
-                    'idcaja'                => $id_arching
-                ]);
-            }
-
-            if ($quantity_paying_3 != "0.00") {
-                DetailPayment::insert([
-                    'idtipo_comprobante'    => $iddocumento_tipo,
-                    'idfactura'             => $idfactura,
-                    'idpago'                => $pay_mode_3,
-                    'monto'                 => $quantity_paying_3,
-                    'idcaja'                => $id_arching
-                ]);
-            }
-
-
-            // Gen ticket data to pdf
-            $factura                            = SaleNote::where('id', $idfactura)->first();
-            $ruc                                = Business::where('id', 1)->first()->ruc;
-            $codigo_comprobante                 = TypeDocument::where('id', $factura->idtipo_comprobante)->first()->codigo;
-            $name                               = $ruc . '-' . $codigo_comprobante . '-' . $factura->serie . '-' . $factura->correlativo;
-            $id_sale                            = $idfactura;
-            $this->gen_ticket_sn($idfactura, $name);
-            $ultima_serie                       = Serie::where('idtipo_documento', $iddocumento_tipo)->where('idcaja', Auth::user()['idcaja'])->first();
-            $ultimo_correlativo                 = (int) $ultima_serie->correlativo + 1;
-            $nuevo_correlativo                  = str_pad($ultimo_correlativo, 8, '0', STR_PAD_LEFT);
-            Serie::where('idtipo_documento', $iddocumento_tipo)->where('idcaja', Auth::user()['idcaja'])->update([
-                'correlativo'   => $nuevo_correlativo
-            ]);
-        } else { // B/F
-            $business                   = Business::where('id', 1)->first();
-            $type_document              = TypeDocument::where('id', $iddocumento_tipo)->first();
-            $client                     = Client::where('id', $dni_ruc)->first();
-            $identity_document          = IdentityDocumentType::where('id', $client->iddoc)->first();
-            $qr                         = $business->ruc . ' | ' . $type_document->codigo . ' | ' . $serie . ' | ' . $correlativo . ' | ' . number_format($order->igv, 2, ".", "") . ' | ' . number_format($order->total, 2, ".", "") . ' | ' . $fecha_emision . ' | ' . $identity_document->codigo . ' | ' . $client->dni_ruc;
-            $name_qr                    = $serie . '-' . $correlativo;
-
-            // Gen Qr
-            QrCode::format('png')
-                ->size(140)
-                ->generate($qr, 'files/billings/qr/' . $name_qr . '.png');
-
-            Billing::insert([
-                'idtipo_comprobante'    => $iddocumento_tipo,
-                'serie'                 => $serie,
-                'correlativo'           => $correlativo,
-                'fecha_emision'         => $fecha_emision,
-                'fecha_vencimiento'     => $fecha_vencimiento,
-                'hora'                  => date('H:i:s'),
-                'idcliente'             => $dni_ruc,
-                'idmoneda'              => 1,
-                'idpago'                => 1,
-                'modo_pago'             => $modo_pago,
-                'exonerada'             => $order->exonerada,
-                'inafecta'              => $order->inafecta,
-                'gravada'               => $order->gravada,
-                'anticipo'              => "0.00",
-                'igv'                   => $order->igv,
-                'gratuita'              => "0.00",
-                'otros_cargos'          => "0.00",
-                'total'                 => $order->total,
-                'cdr'                   => 0,
-                'anulado'               => 0,
-                'id_tipo_nota_credito'  => null,
-                'estado_cpe'            => 0,
-                'errores'               => null,
-                'nticket'               => null,
-                'idusuario'             => Auth::user()['id'],
-                'idcaja'                => $id_arching,
-                'vuelto'                => $difference,
-                'qr'                    => $name_qr . '.png'
-            ]);
-            $idfactura                  = Billing::latest('id')->first()['id'];
-
-            foreach ($detalle as $product) {
-                DetailBilling::insert([
-                    'idfacturacion'         => $idfactura,
-                    'idproducto'            => $product['idproducto'],
-                    'cantidad'              => $product['cantidad'],
-                    'descuento'             => 0.0000000000,
-                    'igv'                   => $product["igv"],
-                    'id_afectacion_igv'     => $product['idcodigo_igv'],
-                    'precio_unitario'       => $product['precio_unitario'],
-                    'precio_total'          => ($product['precio_unitario'] * $product['cantidad'])
-                ]);
-
-                if ($product["stock"] != NULL) {
-                    Product::where('id', $product["idproducto"])->update([
-                        "stock"  => $product["stock"] - $product["cantidad"]
-                    ]);
-                }
-            }
-
-            // Insert pay mode
-            if ($quantity_paying != "0.00") {
-                DetailPayment::insert([
-                    'idtipo_comprobante'    => $iddocumento_tipo,
-                    'idfactura'             => $idfactura,
-                    'idpago'                => $pay_mode,
-                    'monto'                 => $quantity_paying,
-                    'idcaja'                => $id_arching
-                ]);
-            }
-
-            if ($quantity_paying_2 != "0.00") {
-                DetailPayment::insert([
-                    'idtipo_comprobante'    => $iddocumento_tipo,
-                    'idfactura'             => $idfactura,
-                    'idpago'                => $pay_mode_2,
-                    'monto'                 => $quantity_paying_2,
-                    'idcaja'                => $id_arching
-                ]);
-            }
-
-            if ($quantity_paying_3 != "0.00") {
-                DetailPayment::insert([
-                    'idtipo_comprobante'    => $iddocumento_tipo,
-                    'idfactura'             => $idfactura,
-                    'idpago'                => $pay_mode_3,
-                    'monto'                 => $quantity_paying_3,
-                    'idcaja'                => $id_arching
-                ]);
-            }
-
-            $factura                        = Billing::where('id', $idfactura)->first();
-            $ruc                            = Business::where('id', 1)->first()->ruc;
-            $codigo_comprobante             = TypeDocument::where('id', $factura->idtipo_comprobante)->first()->codigo;
-            $name                           = $ruc . '-' . $codigo_comprobante . '-' . $factura->serie . '-' . $factura->correlativo;
-            $id_sale                        = $idfactura;
-            $this->gen_ticket_b($idfactura, $name);
-            $ultima_serie                       = Serie::where('idtipo_documento', $iddocumento_tipo)->where('idcaja', Auth::user()['idcaja'])->first();
-            $ultimo_correlativo                 = (int) $ultima_serie->correlativo + 1;
-            $nuevo_correlativo                  = str_pad($ultimo_correlativo, 8, '0', STR_PAD_LEFT);
-            Serie::where('idtipo_documento', $iddocumento_tipo)->where('idcaja', Auth::user()['idcaja'])->update([
-                'correlativo'   => $nuevo_correlativo
+        } catch (Exception $th) {
+            DB::rollBack();
+            echo json_encode([
+                'status'        => false,
+                'id'            => null,
+                'pdf'           => null,
+                'type_document' => null
             ]);
         }
-
-        Order::where('id', $order->id)->update([
-            'estado'            => 1,
-            'idtipo_documento'  => $iddocumento_tipo,
-            'idventa'           => $id_sale
-        ]);
-        Table::where('idorden', $order->id)->update([
-            'estado'    => 1,
-            'idorden'   => NULL
-        ]);
-        event(new UpdateOrderEvent);
-        event(new UpdateKitchenFinishEvent());
-
-
-        echo json_encode([
-            'status'        => true,
-            'id'            => $id_sale,
-            'pdf'           => $name . '.pdf',
-            'type_document' => $iddocumento_tipo
-        ]);
     }
 
 
