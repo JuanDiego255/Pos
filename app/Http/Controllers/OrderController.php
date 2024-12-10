@@ -660,7 +660,7 @@ class OrderController extends Controller
                 'anticipo' => "0.00",
                 'igv' => 0,
                 'gratuita' => "0.00",
-                'otros_cargos' => "0.00",
+                'otros_cargos' => $request->envio,
                 'total' => $request->total,
                 'observaciones' => $request->notes,
                 'idusuario' => $idusuario,
@@ -672,6 +672,15 @@ class OrderController extends Controller
 
             // Insertar detalles de la orden
             foreach ($products as $product) {
+                $extra_price = 0;
+                if (!is_null($product['extras_id'])) {
+                    $extraIds = explode(',', $product['extras_id']);
+                    $extras = Extras::whereIn('id', $extraIds)->get();
+                    foreach ($extras as $extra) {
+                       $extra_price += $extra->price;
+                    }
+                }
+                $price = $product['item_price'] + $extra_price;
                 DetailOrder::create([
                     'idorden' => $idorden,
                     'idproducto' => $product['item_id'],
@@ -680,13 +689,22 @@ class OrderController extends Controller
                     'descuento' => 0.00,
                     'igv' => 0,
                     'id_afectacion_igv' => null,
-                    'precio_unitario' => $product['item_price'],
-                    'precio_total' => $product['item_price'] * $product['qty']
+                    'precio_unitario' => $price,
+                    'precio_total' => $price * $product['qty']
                 ]);
             }
 
             // Insertar detalles en la cocina
             foreach ($products as $product) {
+                $extra_price = 0;
+                if (!is_null($product['extras_id'])) {
+                    $extraIds = explode(',', $product['extras_id']);
+                    $extras = Extras::whereIn('id', $extraIds)->get();
+                    foreach ($extras as $extra) {
+                       $extra_price += $extra->price;
+                    }
+                }
+                $price = $product['item_price'] + $extra_price;
                 DetailKitchenOrder::create([
                     'idorden' => $idorden,
                     'idproducto' => $product['item_id'],
@@ -695,8 +713,8 @@ class OrderController extends Controller
                     'descuento' => 0.00,
                     'igv' => 0,
                     'id_afectacion_igv' => null,
-                    'precio_unitario' => $product['item_price'],
-                    'precio_total' => $product['item_price'] * $product['qty'],
+                    'precio_unitario' => $price,
+                    'precio_total' => $price * $product['qty'],
                     'estado_producto' => 0
                 ]);
             }
@@ -1158,7 +1176,7 @@ class OrderController extends Controller
                     'anticipo'              => "0.00",
                     'igv'                   => $order->igv,
                     'gratuita'              => "0.00",
-                    'otros_cargos'          => "0.00",
+                    'otros_cargos'          => $order->otros_cargos,
                     'total'                 => $order->total,
                     'estado'                => 1,
                     'idusuario'             => Auth::user()['id'],
@@ -1262,7 +1280,7 @@ class OrderController extends Controller
                     'anticipo'              => "0.00",
                     'igv'                   => $order->igv,
                     'gratuita'              => "0.00",
-                    'otros_cargos'          => "0.00",
+                    'otros_cargos'          => $order->otros_cargos,
                     'total'                 => $order->total,
                     'cdr'                   => 0,
                     'anulado'               => 0,

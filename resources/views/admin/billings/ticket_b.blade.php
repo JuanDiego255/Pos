@@ -133,6 +133,11 @@
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">IGV:</td>
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">S/ {{ $factura->igv }}</td>
                 </tr>
+                @if ($factura->otros_cargos)
+                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Envio:</td>
+                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">
+                        {{ $moneda_pais }} {{ $factura->otros_cargos }}</td>
+                @endif
             </tbody>
 
             <tbody style="border-top: 1px solid #c2c2c2; margin-bottom: 20px;">
