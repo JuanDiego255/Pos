@@ -185,8 +185,7 @@
     @endif
 
     <div class="" style="">
-        <p style="font-size: 11px; text-align: justify; padding: 0px 18px;">BIENES TRANSFERIDOS EN LA AMAZON&Iacute;A
-            REGI&Oacute;N SELVA PARA SER CONSUMIDOS EN LA MISMA.</p>
+        <p style="font-size: 11px; text-align: justify; padding: 0px 18px;"></p>
     </div>
 </body>
 
