@@ -78,7 +78,7 @@
             {{ $tipo_comprobante->descripcion }}
         </p>
         <p style="font-size: 14px; font-weight: bold; margin-top:0; margin-bottom: 0;">
-            {{ $factura->serie }}-{{ $factura->correlativo }}
+            {{ $factura->serie }}{{ $factura->correlativo }}
         </p>
     </div>
 
