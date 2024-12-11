@@ -334,10 +334,10 @@ class BuyController extends Controller
             return;
         }
 
-        if (strlen($serie) != 4) {
+        if (strlen($serie) != 10) {
             echo json_encode([
                 'status'    => false,
-                'msg'       => 'Le serie debe contener 04 dígitos',
+                'msg'       => 'La serie debe contener 10 dígitos',
                 'type'      => 'warning'
             ]);
             return;

@@ -76,17 +76,17 @@ class SerieController extends Controller
             $idtipo_documento_relacionado = NULL;
         }
 
-        if(strlen($serie) != 4)
+        if(strlen($serie) != 10)
         {
             echo json_encode([
                 'status'    => false,
-                'msg'       => 'Le serie debe contener 04 dígitos',
+                'msg'       => 'La serie debe contener 10 dígitos',
                 'type'      => 'warning'
             ]);
             return;
         }
 
-        if(strlen($correlativo) != 8)
+        if(strlen($correlativo) != 10)
         {
             echo json_encode([
                 'status'    => false,
@@ -174,22 +174,22 @@ class SerieController extends Controller
             $idtipo_documento_relacionado = NULL;
         }
 
-        if(strlen($serie) != 4)
+        if(strlen($serie) != 10)
         {
             echo json_encode([
                 'status'    => false,
-                'msg'       => 'Le serie debe contener 04 dígitos',
+                'msg'       => 'La serie debe contener 10 dígitos',
                 'title'     => 'Espere',
                 'type'      => 'warning'
             ]);
             return;
         }
 
-        if(strlen($correlativo) != 8)
+        if(strlen($correlativo) != 10)
         {
             echo json_encode([
                 'status'    => false,
-                'msg'       => 'El correlativo debe contener 08 dígitos',
+                'msg'       => 'El correlativo debe contener 10 dígitos',
                 'title'     => 'Espere',
                 'type'      => 'warning'
             ]);
