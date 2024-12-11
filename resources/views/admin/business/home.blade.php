@@ -25,7 +25,7 @@
     <section class="basic-select2">
         <div class="row">
             <!-- Congratulations Card -->
-            <div class="col-12 col-md-7">
+            <div class="col-12 col-md-12">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Datos de la Empresa</h5>
@@ -33,7 +33,7 @@
                             @csrf
                             <div class="row">
                                 <div class="col-12 col-md-6 mb-3">
-                                    <label for="ruc">RUC</label>
+                                    <label for="ruc">Cédula Jurídica</label>
                                     <input type="text" id="ruc" class="form-control" name="ruc"
                                         value="{{ $business->ruc }}" />
                                 </div>
@@ -53,15 +53,15 @@
                                 <div class="col-12 col-md-6 mb-3">
                                     <label for="pais">Pa&iacute;s</label>
                                     <select name="pais" id="pais" class="form-control">
-                                        <option value="PE">Perú</option>
+                                        <option value="CR">Costa Rica</option>
                                     </select>
                                 </div>
 
-                                <div class="col-12 col-md-4 mb-3">
+                                {{-- <div class="col-12 col-md-4 mb-3">
                                     <label for="departamento">Departamento</label>
                                     <select name="departamento" id="departamento"
                                         class="select2 select2_department form-control" style="width: 100%"></select>
-                                </div>
+                                </div> --}}
 
                                 <div id="wrapper_province" class="col-12 col-md-4 mb-3">
                                     <label for="provincia">Provincia</label>
@@ -75,11 +75,11 @@
                                         class="select2 select2_district form-control"></select>
                                 </div>
 
-                                <div class="col-12 col-md-8 mb-3">
+                                {{-- <div class="col-12 col-md-8 mb-3">
                                     <label for="url_api">URL Api</label>
                                     <input type="text" id="url_api" class="form-control" name="url_api"
                                         value="{{ $business->url_api }}" />
-                                </div>
+                                </div> --}}
 
                                 <div class="col-12 col-md-4 mb-3">
                                     <label for="idpais_u">MONEDA PAIS</label>
@@ -101,7 +101,7 @@
             <!--/ Congratulations Card -->
 
             <!-- Medal Card -->
-            <div class="col-12 col-md-5">
+           {{--  <div class="col-12 col-md-5">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Usuario SUNAT</h5>
@@ -164,7 +164,7 @@
                         </form>
                     </div>
                 </div>
-            </div>
+            </div> --}}
             <!--/ Medal Card -->
         </div>
     </section>

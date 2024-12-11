@@ -140,11 +140,11 @@
         <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
           <div class="app-brand demo">
             <a href="{{ route('admin.home') }}" class="app-brand-link">
-                <span class="app-brand-logo demo">
+                {{-- <span class="app-brand-logo demo">
                     <img src="{{ asset('assets/img/icons/icon-login.svg') }}" alt=""
                         class="img-fluid">
-                </span>
-              <span class="app-brand-text demo menu-text fw-bold">Mytems</span>
+                </span> --}}
+              <span class="app-brand-text demo menu-text fw-bold">Esquina de Floro</span>
             </a>
 
             <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
