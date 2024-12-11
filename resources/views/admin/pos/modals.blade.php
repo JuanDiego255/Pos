@@ -21,7 +21,7 @@
                                         <label class="form-check-label custom-option-content btn-type-document"
                                             for="nota_venta">
                                             <span class="custom-option-body">
-                                                <span class="custom-option-title mb-1">NOTA</span>
+                                                <span class="custom-option-title mb-1">TIQUETE DE COMPRA</span>
                                             </span>
                                             <input id="nota_venta" class="form-check-input" type="radio"
                                                 value="7" name="type_document">
@@ -29,7 +29,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md mb-md-0 mb-2">
+                                {{-- <div class="col-md mb-md-0 mb-2">
                                     <div class="form-check custom-option custom-option-icon position-relative checked">
                                         <label class="form-check-label custom-option-content btn-type-document"
                                             for="boleta">
@@ -40,7 +40,7 @@
                                                 name="type_document" checked="">
                                         </label>
                                     </div>
-                                </div>
+                                </div> --}}
                                 <div class="col-md mb-md-0 mb-2">
                                     <div class="form-check custom-option custom-option-icon position-relative">
                                         <label class="form-check-label custom-option-content btn-type-document"
