@@ -580,7 +580,7 @@ class QuoteController extends Controller
         $correlativo = str_pad(1, 8, '0', STR_PAD_LEFT);
         else
         $ultimo_correlativo = Quote::latest('id')->first()["correlativo"];
-        $correlativo = str_pad($ultimo_correlativo + 1, 8, '0', STR_PAD_LEFT);
+        $correlativo = str_pad($ultimo_correlativo + 1, 10, '0', STR_PAD_LEFT);
 
         Quote::insert([
             'idtipo_comprobante'    => $idtipo_comprobante,
@@ -740,7 +740,7 @@ class QuoteController extends Controller
         $ultima_serie               = Serie::where('idtipo_documento', $idtipo_comprobante)->where('idcaja', Auth::user()['idcaja'])->first();
         $ultimo_correlativo         = (int) $ultima_serie->correlativo;
         $serie                      = $ultima_serie->serie;
-        $correlativo                = str_pad($ultimo_correlativo, 8, '0', STR_PAD_LEFT);
+        $correlativo                = str_pad($ultimo_correlativo, 10, '0', STR_PAD_LEFT);
         
         $qr                         = $business->ruc . ' | ' . $type_document->codigo . ' | ' . $serie . ' | ' . $correlativo . ' | ' . number_format($quote->igv, 2, ".", "") . ' | ' . number_format($quote->total, 2, ".", "") . ' | ' . $fecha_emision . ' | ' . $identity_document->codigo . ' | ' . $client->dni_ruc;
         $name_qr                    = $serie . '-' . $correlativo;
@@ -820,7 +820,7 @@ class QuoteController extends Controller
 
         $ultima_serie_sale      = Serie::where('idtipo_documento', $idtipo_comprobante)->where('idcaja', Auth::user()['idcaja'])->first();
         $ultimo_correlativo_sale= (int) $ultima_serie_sale->correlativo + 1;
-        $nuevo_correlativo_sale = str_pad($ultimo_correlativo_sale, 8, '0', STR_PAD_LEFT);
+        $nuevo_correlativo_sale = str_pad($ultimo_correlativo_sale, 10, '0', STR_PAD_LEFT);
         Serie::where('idtipo_documento', $idtipo_comprobante)->where('idcaja', Auth::user()['idcaja'])->update([
             'correlativo'   => $nuevo_correlativo_sale
         ]);

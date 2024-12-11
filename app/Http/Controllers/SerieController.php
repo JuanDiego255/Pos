@@ -90,7 +90,7 @@ class SerieController extends Controller
         {
             echo json_encode([
                 'status'    => false,
-                'msg'       => 'El correlativo debe contener 08 dígitos',
+                'msg'       => 'El correlativo debe contener 10 dígitos',
                 'type'      => 'warning'
             ]);
             return;

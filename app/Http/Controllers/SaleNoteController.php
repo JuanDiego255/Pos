@@ -384,7 +384,7 @@ class SaleNoteController extends Controller
         }
         $ultima_serie                   = Serie::where('idtipo_documento', $idtipo_comprobante)->where('idcaja', Auth::user()['idcaja'])->first();
         $ultimo_correlativo             = (int) $ultima_serie->correlativo + 1;
-        $nuevo_correlativo              = str_pad($ultimo_correlativo, 8, '0', STR_PAD_LEFT);
+        $nuevo_correlativo              = str_pad($ultimo_correlativo, 10, '0', STR_PAD_LEFT);
         Serie::where('idtipo_documento', $idtipo_comprobante)->where('idcaja', Auth::user()['idcaja'])->update([
             'correlativo'   => $nuevo_correlativo
         ]);

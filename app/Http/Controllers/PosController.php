@@ -598,7 +598,7 @@ class PosController extends Controller
             $this->gen_ticket_sn($idfactura, $name);
             $ultima_serie                       = Serie::where('idtipo_documento', $iddocumento_tipo)->where('idcaja', Auth::user()['idcaja'])->first();
             $ultimo_correlativo                 = (int) $ultima_serie->correlativo + 1;
-            $nuevo_correlativo                  = str_pad($ultimo_correlativo, 8, '0', STR_PAD_LEFT);
+            $nuevo_correlativo                  = str_pad($ultimo_correlativo, 10, '0', STR_PAD_LEFT);
             Serie::where('idtipo_documento', $iddocumento_tipo)->where('idcaja', Auth::user()['idcaja'])->update([
                 'correlativo'   => $nuevo_correlativo
             ]);
@@ -708,7 +708,7 @@ class PosController extends Controller
             $this->gen_ticket_b($idfactura, $name);
             $ultima_serie                       = Serie::where('idtipo_documento', $iddocumento_tipo)->where('idcaja', Auth::user()['idcaja'])->first();
             $ultimo_correlativo                 = (int) $ultima_serie->correlativo + 1;
-            $nuevo_correlativo                  = str_pad($ultimo_correlativo, 8, '0', STR_PAD_LEFT);
+            $nuevo_correlativo                  = str_pad($ultimo_correlativo, 10, '0', STR_PAD_LEFT);
             Serie::where('idtipo_documento', $iddocumento_tipo)->where('idcaja', Auth::user()['idcaja'])->update([
                 'correlativo'   => $nuevo_correlativo
             ]);
