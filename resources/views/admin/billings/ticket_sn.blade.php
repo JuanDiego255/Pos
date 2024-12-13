@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+@php
+    $cantArticulos = 0;
+@endphp
 
 <head>
     <meta charset="UTF-8">
@@ -66,51 +69,49 @@
 
 <body>
     <div class="cabecera">
-        <img src="{{ public_path('assets/img/branding/logo__mytems.jpg') }}" style="margin-top: 9px;" width="35%"
-            height="7%">
+        {{-- <img src="{{ public_path('assets/img/branding/logo__mytems.jpg') }}" style="margin-top: 9px;" width="35%"
+            height="7%"> --}}
         <p style="font-size: 16px; font-weight: bold; margin-bottom: 0; margin-top: 10px;">
             {{ $business->nombre_comercial }}</p>
+        <p style="font-size: 14px; font-weight: bold; margin-bottom: 0; margin-top: 10px;">FACTURA</p>
         <p style="font-size: 10px; margin-top:0; margin-bottom: 0;">{{ $business->direccion }}</p>
-        <p style="font-size: 10px; margin-top:0; margin-bottom: 0;">{{ $ubigeo['distrito'] }} -
-            {{ $ubigeo['departamento'] }}</p>
-        <p style="font-size: 14px; font-weight: bold; margin-top:0; margin-bottom: 0;">RUC: {{ $business->ruc }}</p>
-        <p style="font-size: 14px; font-weight: bold; margin-top:0; margin-bottom: 0;">
-            {{ $tipo_comprobante->descripcion }}
-        </p>
-        <p style="font-size: 14px; font-weight: bold; margin-top:0; margin-bottom: 0;">
-            {{ $factura->serie }}{{ $factura->correlativo }}
-        </p>
     </div>
 
-    <div class="informacion">
-        <p style="font-size: 11px; margin-top:0; font-weight: bold; margin-bottom: 0;">Adquiriente</p>
-        <p style="font-size: 10px; margin-top:0; margin-bottom: 0;">{{ $tipo_documento->descripcion_documento }}.
-            {{ $cliente->dni_ruc }}</p>
-        <p style="font-size: 10px; margin-top:0; margin-bottom: 0;">{{ $cliente->nombres }}</p>
-        <p style="font-size: 10px; margin-top:0; margin-bottom: 0; text-transform: uppercase">{{ $cliente->direccion }}
+    <div class="informacion" style="margin-top:5px;">
+        <p style="font-size: 12px; margin-top:0; margin-bottom: 0;">ALICE ZAMORA MATAMOROS - CED:
+            {{ $business->ruc }}</p>
+        <p style="font-size: 12px; margin-top:0; margin-bottom: 0;">TELEFONO: {{ $business->telefono }} </p>
+        <p style="font-size: 12px; margin-top:0; margin-bottom: 0;">CAJERO: {{ $vendedor }} </p>
+        <p style="font-size: 12px; margin-top:0; font-weight: bold; margin-bottom: 0;">Factura #:
+            {{ $factura->serie }}{{ $factura->correlativo }}
         </p>
-        <p style="font-size: 11px; margin-top:0; font-weight: bold; margin-bottom: 0;">Fecha de
-            Emisión:{{ date('d/m/Y', strtotime($factura->fecha_emision)) }} Hora: {{ $factura->hora }}</p>
+        <p style="font-size: 10px; margin-top:0; margin-bottom: 0;">CLIENTE: {{ $cliente->nombres }}</p>
+        <p style="font-size: 10px; margin-top:0; margin-bottom: 0; text-transform: uppercase">-
+        </p>
+        <p style="font-size: 11px; margin-top:0; font-weight: bold; margin-bottom: 0;">
+            Fecha:{{ date('d/m/Y', strtotime($factura->fecha_emision)) }} Hora: {{ $factura->hora }}</p>
 
         <p style="font-size: 12px; margin-top:0; font-weight: bold; margin-bottom: 0;">Moneda: {{ $moneda->codigo }}
         </p>
         <p style="font-size: 12px; margin-top:0; margin-bottom: 0;">Forma de Pago: CONTADO </p>
-        <p style="font-size: 12px; margin-top:0; margin-bottom: 0;">Vendedor: {{ $vendedor }} </p>
     </div>
 
     <div class="tabla_detalle">
         <table style="border-top: 1px solid #c2c2c2;" width="100%">
             <thead style="border-bottom: 1px solid #c2c2c2" style="width: 100%">
                 <tr>
-                    <th style="font-size: 12px;">[Cant]</th>
-                    <th style="font-size: 12px; text-align: left;">Descripción</th>
-                    <th style="font-size: 12px;">P/U</th>
-                    <th style="font-size: 12px; text-align:right;">Importe</th>
+                    <th style="font-size: 12px;">[CANT]</th>
+                    <th style="font-size: 12px; text-align: left;">DESCRIPCION</th>
+                    <th style="font-size: 12px;">TOTAL</th>
+                    <th style="font-size: 12px; text-align:right;">IVA</th>
                 </tr>
             </thead>
 
             <tbody style="border-bottom: 1px solid #c2c2c2">
                 @foreach ($detalle as $product)
+                    @php
+                        $cantArticulos += round($product['cantidad']);
+                    @endphp
                     <tr style="border-bottom: 1px solid #c2c2c2">
                         <td style="font-size: 10px; text-align:center; vertical-align: top">[
                             {{ round($product['cantidad']) }} ]</td>
@@ -119,55 +120,71 @@
                         <td style="font-size: 10px; text-align:center; vertical-align: top">
                             {{ $product['precio_unitario'] }}</td>
                         <td style="font-size: 10px; text-align:right; vertical-align: top">
-                            {{ $product['precio_total'] }}</td>
+                            {{ '0%' }}</td>
                     </tr>
                 @endforeach
+                <tr style="border-bottom: 1px solid #c2c2c2">
+                    <td style="font-size: 12px; text-align:center; font-weight: bold; vertical-align: top"
+                        colspan="4">----------> Ultima Linea <---------- </td>
+                </tr>
             </tbody>
+            <tbody style="border-bottom: 1px solid #c2c2c2">
+                <tr style="border-bottom: 1px solid #c2c2c2">
+                    <td style="font-size: 12px; text-align:left; font-weight: bold; vertical-align: top" colspan="4">
+                        Cant de Articulos:
+                        {{ $cantArticulos }}</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #c2c2c2">
+                    <td style="font-size: 12px; text-align:center; font-weight: bold; vertical-align: top"
+                        colspan="4">Desglose del IVA</td>
+                </tr>
+            </tbody>
+            <tbody style="border-bottom: 1px solid #c2c2c2">
+                <tr style="border-bottom: 1px solid #c2c2c2">
+                    <td style="font-size: 10px; text-align:center; font-weight: bold; vertical-align: top">IMPUESTO</td>
+                    <td style="font-size: 10px; text-align:center; font-weight: bold; vertical-align: top">IVA %</td>
+                    <td style="font-size: 10px; text-align:center; font-weight: bold; vertical-align: top">TOTAL</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #c2c2c2">
+                    <td style="font-size: 10px; text-align:center; vertical-align: top">IVA</td>
+                    <td style="font-size: 10px; text-align:center; vertical-align: top">0 %</td>
+                    <td style="font-size: 10px; text-align:center; vertical-align: top">+0,00</td>
+                </tr>
 
+            </tbody>
             <tbody style="border-bottom: 1px solid #c2c2c2">
                 <tr>
-                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Exonerada:</td>
+                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Sub Total:</td>
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">
-                        {{ $moneda_pais }} {{ $factura->exonerada }}</td>
+                        {{ $factura->exonerada }}</td>
                 </tr>
 
                 <tr>
-                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Gravada:</td>
+                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Total de IVA %:
+                    </td>
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">
-                        {{ $moneda_pais }} {{ $factura->gravada }}</td>
-                </tr>
-
-                <tr>
-                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Inafecta:</td>
-                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">
-                        {{ $moneda_pais }} {{ $factura->inafecta }}</td>
-                </tr>
-
-                <tr>
-                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">IGV:</td>
-                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">
-                        {{ $moneda_pais }} {{ $factura->igv }}</td>
+                        0</td>
                 </tr>
                 @if ($factura->otros_cargos)
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Envio:</td>
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">
-                        {{ $moneda_pais }} {{ $factura->otros_cargos }}</td>
+                        {{ $factura->otros_cargos }}</td>
                 @endif
             </tbody>
 
             <tbody style="border-top: 1px solid #c2c2c2; margin-bottom: 20px;">
                 <tr>
-                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Importe Total:
+                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Total A Pagar:
                     </td>
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">
-                        {{ $moneda_pais }} {{ $factura->total }}</td>
+                        {{ $factura->total }}</td>
                 </tr>
             </tbody>
 
             <tbody style="border-top: 1px solid #c2c2c2;">
                 <tr style="">
                     <td style="font-size: 12px; font-weight: bold; text-align: center;" colspan="4">
-                        Son: {{ $numero_letras }} Con 00/100 {{ $descripcion_moneda_pais }}
+                        Son: {{ $numero_letras }} {{ $descripcion_moneda_pais }}
                     </td>
                 </tr>
             </tbody>
@@ -185,7 +202,8 @@
     @endif
 
     <div class="" style="">
-        <p style="font-size: 11px; text-align: justify; padding: 0px 18px;"></p>
+        <p style="font-size: 12px; text-align: center; padding: 0px 18px;">** Muchas gracias por su compra **</p>
+        <p style="font-size: 10px; text-align: center; padding: 0px 18px;">Acogido a regimen simplificado</p>
     </div>
 </body>
 
