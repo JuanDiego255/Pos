@@ -677,7 +677,7 @@ class OrderController extends Controller
                     $extraIds = explode(',', $product['extras_id']);
                     $extras = Extras::whereIn('id', $extraIds)->get();
                     foreach ($extras as $extra) {
-                       $extra_price += $extra->price;
+                        $extra_price += $extra->price;
                     }
                 }
                 $price = $product['item_price'] + $extra_price;
@@ -701,7 +701,7 @@ class OrderController extends Controller
                     $extraIds = explode(',', $product['extras_id']);
                     $extras = Extras::whereIn('id', $extraIds)->get();
                     foreach ($extras as $extra) {
-                       $extra_price += $extra->price;
+                        $extra_price += $extra->price;
                     }
                 }
                 $price = $product['item_price'] + $extra_price;
@@ -1431,10 +1431,22 @@ class OrderController extends Controller
                 $mesa = Table::where('idorden', $order->id)->first();
                 $descripcionMesa = $mesa ? $mesa->descripcion : 'PREPARAR (SIN MESA)';
                 $minutos = Carbon::parse($order->updated_at)->diffInMinutes(Carbon::now());
-
+                $tiempo_finalizado = 0;
+                $countOrderActive = DetailKitchenOrder::where('idorden', $order->id)->where('estado_producto', 0)->count();
+                if ($countOrderActive == 0) {
+                    $pedidoFinalizado = DetailKitchenOrder::where('estado_producto', 1)
+                        ->orderBy('updated_at', 'desc')->first();
+                    $pedido_min_fin = Carbon::parse($order->updated_at)->diffInMinutes($pedidoFinalizado->updated_at);
+                }
                 $tiempo = $minutos < 60
-                    ? $minutos . ' minutos'
-                    : intdiv($minutos, 60) . ' horas ' . ($minutos % 60) . ' minutos';
+                    ? $minutos . ' min'
+                    : intdiv($minutos, 60) . ' horas ' . ($minutos % 60) . ' min';
+                if ($pedido_min_fin > 0) {
+                    $tiempo_finalizado = $pedido_min_fin < 60
+                        ? $pedido_min_fin . ' min'
+                        : intdiv($pedido_min_fin, 60) . ' horas ' . ($pedido_min_fin % 60) . ' min';
+                }
+                $tiempo_fin_text = $tiempo_finalizado > 0 ? ' (Terminado en: ' . $tiempo_finalizado . ')' : '';
 
                 $html .= '<div class="col-md-3 mb-3">
                             <div class="card mb-6">
@@ -1443,7 +1455,7 @@ class OrderController extends Controller
                                     <div class="card-header-elements ms-auto">
                                         <span class="fas fa-clock text-muted text-dark"></span>
                                         <span class="text text-muted d-flex">
-                                            <small>' . $tiempo . ' </small>
+                                            <small>' . $tiempo . $tiempo_fin_text . ' </small>
                                         </span>
                                     </div>
                                 </div>
