@@ -28,6 +28,7 @@ class Order extends Model
         'estado',
         'idmesa',
         'ticket_comanda',
-        'ticket_pre_cuenta'
+        'ticket_pre_cuenta',
+        'note'
     ];
 }

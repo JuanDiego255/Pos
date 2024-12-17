@@ -233,7 +233,8 @@ class OrderController extends Controller
 
         DetailOrder::where('idorden', $id)->delete();
         Order::where('id', $id)->update([
-            'estado'        => 2
+            'estado'        => 2,
+            'note' => $request->note
         ]);
 
         Table::where('id', $order->idmesa)->update([
@@ -1432,11 +1433,14 @@ class OrderController extends Controller
                 $descripcionMesa = $mesa ? $mesa->descripcion : 'PREPARAR (SIN MESA)';
                 $minutos = Carbon::parse($order->updated_at)->diffInMinutes(Carbon::now());
                 $tiempo_finalizado = 0;
+                $pedido_min_fin = 0;
                 $countOrderActive = DetailKitchenOrder::where('idorden', $order->id)->where('estado_producto', 0)->count();
                 if ($countOrderActive == 0) {
                     $pedidoFinalizado = DetailKitchenOrder::where('estado_producto', 1)
                         ->orderBy('updated_at', 'desc')->first();
-                    $pedido_min_fin = Carbon::parse($order->updated_at)->diffInMinutes($pedidoFinalizado->updated_at);
+                    if($pedidoFinalizado){
+                        $pedido_min_fin = Carbon::parse($order->updated_at)->diffInMinutes($pedidoFinalizado->updated_at);
+                    }                    
                 }
                 $tiempo = $minutos < 60
                     ? $minutos . ' min'

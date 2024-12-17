@@ -1,6 +1,5 @@
 <script>
-    $('document').ready(function()
-    {
+    $('document').ready(function() {
         Echo.channel('new-order').listen('NewOrderEvent', (e) => {
             cargarSonido("mp3/notification.mp3");
             setTimeout(() => {
@@ -15,10 +14,9 @@
         });
     });
 
-    $('body').on('click', '.btn-print-command', function()
-    {
+    $('body').on('click', '.btn-print-command', function() {
         event.preventDefault();
-        let id      = $(this).data('id');
+        let id = $(this).data('id');
         $.ajax({
             url: "{{ route('admin.print_command') }}",
             method: "POST",
@@ -36,10 +34,10 @@
                     return;
                 }
                 close_block('#layout-content');
-                let pdf                 =   `{{ asset('files/orders/commands/${r.pdf}') }}`;
-                var iframe              = document.createElement('iframe');
-                iframe.style.display    = "none";
-                iframe.src              = pdf;
+                let pdf = `{{ asset('files/orders/commands/${r.pdf}') }}`;
+                var iframe = document.createElement('iframe');
+                iframe.style.display = "none";
+                iframe.src = pdf;
                 document.body.appendChild(iframe);
                 iframe.contentWindow.focus();
                 iframe.contentWindow.print();
@@ -48,10 +46,9 @@
         });
     });
 
-    $('body').on('click', '.btn-print-account', function()
-    {
+    $('body').on('click', '.btn-print-account', function() {
         event.preventDefault();
-        let id      = $(this).data('id');
+        let id = $(this).data('id');
         $.ajax({
             url: "{{ route('admin.print_pre_account') }}",
             method: "POST",
@@ -69,10 +66,10 @@
                     return;
                 }
                 close_block('#layout-content');
-                let pdf                 =   `{{ asset('files/orders/pre-accounts/${r.pdf}') }}`;
-                var iframe              = document.createElement('iframe');
-                iframe.style.display    = "none";
-                iframe.src              = pdf;
+                let pdf = `{{ asset('files/orders/pre-accounts/${r.pdf}') }}`;
+                var iframe = document.createElement('iframe');
+                iframe.style.display = "none";
+                iframe.src = pdf;
                 document.body.appendChild(iframe);
                 iframe.contentWindow.focus();
                 iframe.contentWindow.print();
@@ -81,49 +78,52 @@
         });
     });
 
-    $('body').on('click', '.btn-confirm', function()
-    {
+    $('body').on('click', '.btn-confirm', function(event) {
         event.preventDefault();
-        let id      = $(this).data('id');
-        Swal.fire({
-            title: 'Anular',
-            text: "¿Desea anular el pedido?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Si, anular',
-            cancelButtonText: 'Cancelar',
-            customClass: {
-                confirmButton: 'btn btn-primary',
-                cancelButton: 'btn btn-outline-danger ml-1'
-            },
-            buttonsStyling: false
-        }).then(function (result) {
-            if (result.value) 
-            {
-                $.ajax({
-                    url         : "{{ route('admin.anulled_order') }}",
-                    method      : 'POST',
-                    data        : {
-                        '_token': "{{ csrf_token() }}",
-                        id      : id
-                    },
-                    success     : function(r){
-                        if(!r.status)
-                        {
-                            toast_msg(r.msg, r.type);
-                            return;
-                        }
 
-                        toast_msg(r.msg, r.type);
-                        reload_table();
-                    },
-                    dataType    : 'json'
-                });
+        // Capturar el ID del pedido
+        let id = $(this).data('id');
+
+        // Mostrar el modal
+        $('#modalAnular').modal('show');
+
+        // Configurar el botón del modal
+        $('.btn-confirm-note').off('click').on('click', function() {
+            // Obtener el valor de la nota
+            let note = $('#note').val();
+
+            // Validar si la nota está vacía
+            if (note.trim() === '') {
+                toast_msg('Debe ingresar una nota para anular el pedido.', 'error');
+                return;
             }
+
+            // Cerrar el modal
+            $('#modalAnular').modal('hide');
+            $.ajax({
+                url: "{{ route('admin.anulled_order') }}",
+                method: 'POST',
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    id: id,
+                    note: note // Incluir la nota en los datos
+                },
+                success: function(r) {
+                    if (!r.status) {
+                        toast_msg(r.msg, r.type);
+                        return;
+                    }
+
+                    toast_msg(r.msg, r.type);
+                    reload_table();
+                },
+                dataType: 'json'
+            });
         });
     });
 
-    const cargarSonido = function (fuente) {
+
+    const cargarSonido = function(fuente) {
         const sonido = document.createElement("audio");
         sonido.src = fuente;
         sonido.setAttribute("preload", "auto");
@@ -176,7 +176,7 @@
         });
         return;
     }
-    
+
     function load_serie() {
         $.ajax({
             url: "{{ route('admin.load_serie_pos') }}",
@@ -292,21 +292,20 @@
         return;
     });
 
-    $('body').on('click', '.btn-gen', function()
-    {
+    $('body').on('click', '.btn-gen', function() {
         event.preventDefault();
-        let id              = $(this).data('id');
+        let id = $(this).data('id');
         $.ajax({
-            url             : "{{ route('admin.process_pay_order') }}",
-            method          : "POST",
-            data            : {
-                '_token'    : "{{ csrf_token() }}",
-                id          : id
+            url: "{{ route('admin.process_pay_order') }}",
+            method: "POST",
+            data: {
+                '_token': "{{ csrf_token() }}",
+                id: id
             },
-            beforeSend      : function(){
+            beforeSend: function() {
                 block_content('#layout-content');
             },
-            success         : function(r){
+            success: function(r) {
                 if (!r.status) {
                     close_block('#layout-content');
                     toast_msg(r.msg, r.type);
@@ -314,7 +313,7 @@
                 }
 
                 close_block('#layout-content');
-                
+
                 $('#modalConfirmSale input[name="idorder"]').val(r.order.id);
                 $('#modalConfirmSale input[name="quantity_paying"]').val(parseFloat(r.order.total)
                     .toFixed(2));
@@ -336,7 +335,7 @@
                 load_serie();
                 $('#modalConfirmSale').modal('show');
             },
-            dataType        : "json"
+            dataType: "json"
         });
     });
 
@@ -521,144 +520,140 @@
         load_clients(2);
     }
 
-    function send_data_sunat(id, ticket)
-    {
+    function send_data_sunat(id, ticket) {
         $.ajax({
-            url             : "{{ route('admin.send_bf') }}",
-            method          : "POST",
-            data            : {
-                '_token'    : "{{ csrf_token() }}",
-                id          : id
+            url: "{{ route('admin.send_bf') }}",
+            method: "POST",
+            data: {
+                '_token': "{{ csrf_token() }}",
+                id: id
             },
-            beforeSend      : function(){
+            beforeSend: function() {
                 $('.btn-confirm-pay').prop('disabled', true);
                 $('.text-confirm-pay').addClass('d-none');
                 $('.text-confirm-payment').removeClass('d-none');
             },
-            success         : function(r){
-                if(!r.status){}
+            success: function(r) {
+                if (!r.status) {}
                 $('.btn-confirm-pay').prop('disabled', false);
                 $('.text-confirm-pay').removeClass('d-none');
                 $('.text-confirm-payment').addClass('d-none');
 
-                let ip          = r.empresa.url_api,
-                    api         = "Api/index.php",
-                    datosJSON   = JSON.stringify(r.data);
-                    datosJSON   = unescape(encodeURIComponent(datosJSON)),
-                    idfactura   = parseInt(r.idfactura);
+                let ip = r.empresa.url_api,
+                    api = "Api/index.php",
+                    datosJSON = JSON.stringify(r.data);
+                datosJSON = unescape(encodeURIComponent(datosJSON)),
+                    idfactura = parseInt(r.idfactura);
 
-                    $.ajax({    
-                        url         : ip + api,
-                        method      : 'POST',
-                        data        : {datosJSON},
-                        beforeSend  : function(){
-                            $('.btn-confirm-pay').prop('disabled', true);
-                            $('.text-confirm-pay').addClass('d-none');
-                            $('.text-confirm-payment').removeClass('d-none');
+                $.ajax({
+                    url: ip + api,
+                    method: 'POST',
+                    data: {
+                        datosJSON
                     },
-                    
-                    }).done(function(res){
-                        $('.btn-confirm-pay').prop('disabled', false);
-                        $('.text-confirm-pay').removeClass('d-none');
-                        $('.text-confirm-payment').addClass('d-none');
-                        if (res.trim() == "No se registró") 
-                        {
-                            toast_msg('El número de comprobante electrónico esta duplicado, revise la base de datos', 'error');
-                            return;
-                        }
+                    beforeSend: function() {
+                        $('.btn-confirm-pay').prop('disabled', true);
+                        $('.text-confirm-pay').addClass('d-none');
+                        $('.text-confirm-payment').removeClass('d-none');
+                    },
 
-                        let respuesta_sunat = JSON.parse(res),
-                            estado_conexion = JSON.parse(respuesta_sunat).status;
-                         
-                        $('#modalConfirmSale').modal('hide');
-                        let pdf = `{{ asset('files/billings/ticket/${ticket}') }}`;
-                        var iframe = document.createElement('iframe');
-                        iframe.style.display = "none";
-                        iframe.src = pdf;
-                        document.body.appendChild(iframe);
-                        iframe.contentWindow.focus();
-                        iframe.contentWindow.print();
-                        $('input[name="input-search-product"]').val('');
-                        load_alerts();
-                        load_serie();
-                        load_clients(2);
-                        if(estado_conexion != false)
-                        {
-                            update_cdr(idfactura);
-                        }
-                    }).fail(function(jqxhr, textStatus, error){
-                        $('.btn-confirm-pay').prop('disabled', false);
-                        $('.text-confirm-pay').removeClass('d-none');
-                        $('.text-confirm-payment').addClass('d-none');
-                        $('#modalConfirmSale').modal('hide');
-                        let pdf = `{{ asset('files/billings/ticket/${ticket}') }}`;
-                        var iframe = document.createElement('iframe');
-                        iframe.style.display = "none";
-                        iframe.src = pdf;
-                        document.body.appendChild(iframe);
-                        iframe.contentWindow.focus();
-                        iframe.contentWindow.print();
-                        $('input[name="input-search-product"]').val('');
-                        load_alerts();
-                        load_serie();
-                        load_clients(2);
-                    });
+                }).done(function(res) {
+                    $('.btn-confirm-pay').prop('disabled', false);
+                    $('.text-confirm-pay').removeClass('d-none');
+                    $('.text-confirm-payment').addClass('d-none');
+                    if (res.trim() == "No se registró") {
+                        toast_msg(
+                            'El número de comprobante electrónico esta duplicado, revise la base de datos',
+                            'error');
+                        return;
+                    }
+
+                    let respuesta_sunat = JSON.parse(res),
+                        estado_conexion = JSON.parse(respuesta_sunat).status;
+
+                    $('#modalConfirmSale').modal('hide');
+                    let pdf = `{{ asset('files/billings/ticket/${ticket}') }}`;
+                    var iframe = document.createElement('iframe');
+                    iframe.style.display = "none";
+                    iframe.src = pdf;
+                    document.body.appendChild(iframe);
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                    $('input[name="input-search-product"]').val('');
+                    load_alerts();
+                    load_serie();
+                    load_clients(2);
+                    if (estado_conexion != false) {
+                        update_cdr(idfactura);
+                    }
+                }).fail(function(jqxhr, textStatus, error) {
+                    $('.btn-confirm-pay').prop('disabled', false);
+                    $('.text-confirm-pay').removeClass('d-none');
+                    $('.text-confirm-payment').addClass('d-none');
+                    $('#modalConfirmSale').modal('hide');
+                    let pdf = `{{ asset('files/billings/ticket/${ticket}') }}`;
+                    var iframe = document.createElement('iframe');
+                    iframe.style.display = "none";
+                    iframe.src = pdf;
+                    document.body.appendChild(iframe);
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                    $('input[name="input-search-product"]').val('');
+                    load_alerts();
+                    load_serie();
+                    load_clients(2);
+                });
             },
-            dataType        : "json"
+            dataType: "json"
         });
     }
 
-    function update_cdr(idfactura)
-    {
+    function update_cdr(idfactura) {
         let resp = '';
         $.ajax({
-            url     : "{{ route('admin.update_cdr_bf') }}",
-            method  : 'POST',
-            data    : {
-                '_token'   : "{{ csrf_token() }}",
-                idfactura  : idfactura
+            url: "{{ route('admin.update_cdr_bf') }}",
+            method: 'POST',
+            data: {
+                '_token': "{{ csrf_token() }}",
+                idfactura: idfactura
             },
-            success : function(r){},
-            dataType : 'json'
+            success: function(r) {},
+            dataType: 'json'
         });
     }
 
-    $('body').on('click', '.btn-open-whatsapp', function()
-    {
-        let id                  = $(this).data('id'),
-            idtipo_documento    = $(this).data('idtipo_documento'),
-            idventa             = $(this).data('idventa'),
-            type_document       = (idtipo_documento == "7") ? 'sale_note' : 'billing';
+    $('body').on('click', '.btn-open-whatsapp', function() {
+        let id = $(this).data('id'),
+            idtipo_documento = $(this).data('idtipo_documento'),
+            idventa = $(this).data('idventa'),
+            type_document = (idtipo_documento == "7") ? 'sale_note' : 'billing';
         $('#modalSendWpp .btn-whatsapp').attr('id', idventa);
         $('#modalSendWpp .btn-whatsapp').attr('type_document', type_document);
         $('#modalSendWpp').modal('show');
     });
 
-    $('body').on('click', '#modalSendWpp .btn-whatsapp', function()
-    {
+    $('body').on('click', '#modalSendWpp .btn-whatsapp', function() {
         event.preventDefault();
-        let id              = $(this).attr('id'),
-            type_document   = $(this).attr('type_document'),
-            input__phone    = $('#modalSendWpp input[name="input__phone"]').val(),
-            html            = '';
+        let id = $(this).attr('id'),
+            type_document = $(this).attr('type_document'),
+            input__phone = $('#modalSendWpp input[name="input__phone"]').val(),
+            html = '';
 
         $.ajax({
-            url     : "{{ route('admin.send_voucher') }}",
-            method  : "POST",
-            data    : {
-                '_token'        : "{{ csrf_token() }}",
-                id              : id,
-                input__phone    : input__phone,
-                type_document   : type_document
+            url: "{{ route('admin.send_voucher') }}",
+            method: "POST",
+            data: {
+                '_token': "{{ csrf_token() }}",
+                id: id,
+                input__phone: input__phone,
+                type_document: type_document
             },
-            beforeSend   : function(){
+            beforeSend: function() {
                 $('#modalSendWpp .text-send').addClass('d-none');
                 $('#modalSendWpp .text-sending').removeClass('d-none');
             },
-            success : function(r)
-            {
-                if(!r.status)
-                {
+            success: function(r) {
+                if (!r.status) {
                     $('#modalSendWpp .text-send').removeClass('d-none');
                     $('#modalSendWpp .text-sending').addClass('d-none');
                     toast_msg(r.msg, r.type);

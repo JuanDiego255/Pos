@@ -31,6 +31,7 @@
         </div>
 
         @include('admin.orders.modals')
+        @include('admin.orders.anular')
         @include('admin.pos.modals')
         @include('admin.clients.modal-register')
         @include('admin.billings.modal-send-wpp')
