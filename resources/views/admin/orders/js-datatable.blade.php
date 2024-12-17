@@ -57,6 +57,10 @@
                     className   : 'text-center'
                 },
                 {
+                    data        : 'note',
+                    className   : 'text-center'
+                },
+                {
                     data        : 'acciones',
                     className   : 'text-center'
                 },

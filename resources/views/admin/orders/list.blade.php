@@ -21,6 +21,7 @@
                                     <th>Mesero</th>
                                     <th>Importe</th>
                                     <th>Estado</th>
+                                    <th>Nota</th>
                                     <th width="10%">Acciones</th>
                                 </tr>
                             </thead>
