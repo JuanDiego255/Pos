@@ -232,6 +232,7 @@ class OrderController extends Controller
         }
 
         DetailOrder::where('idorden', $id)->delete();
+        DetailKitchenOrder::where('idorden', $id)->delete();
         Order::where('id', $id)->update([
             'estado'        => 2,
             'note' => $request->note
@@ -1410,6 +1411,7 @@ class OrderController extends Controller
         // Obtener todas las órdenes, incluyendo las que no tienen mesa asignada
         $orders = Order::select('orders.*')
             ->leftJoin('tables', 'orders.id', '=', 'tables.idorden')
+            ->where('orders.estado','!=',2)
             ->orderBy('orders.updated_at', 'DESC')
             ->get();
 
