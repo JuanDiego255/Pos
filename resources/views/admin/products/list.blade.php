@@ -27,6 +27,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th width="8%">#</th>
+                                    <th width="15%">Nombre</th>
                                     <th>Descripci&oacute;n</th>
                                     <th width="15%">Precio Compra</th>
                                     <th width="13%">Precio Venta</th>

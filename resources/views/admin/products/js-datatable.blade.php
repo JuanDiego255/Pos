@@ -41,6 +41,9 @@
                     className   : 'text-center'
                 },
                 {
+                    data        : 'nombre'
+                },
+                {
                     data        : 'descripcion'
                 },
                 {

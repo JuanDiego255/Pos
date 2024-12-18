@@ -96,7 +96,7 @@ class PosController extends Controller
                                             <div class="card-body" style="border-radius: 5px ">';
                 if (!empty($product->codigo_interno))
                     $html_products .= '<small class="fw-bold">' . $product->codigo_interno . ' -</small>';
-                $html_products .= '<h6 class="mb-2 pb-1">' . $product->descripcion . '</h6>
+                $html_products .= '<h6 class="mb-2 pb-1">' . $product->nombre . '</h6>
                                                 <p class="small"></p>
                                                 <div class="row mb-3 g-3">
                                                     <div class="col-6">
@@ -136,8 +136,8 @@ class PosController extends Controller
         $value              = trim($request->input('value'));
         Cache::pull('search-products');
         $products = Cache::rememberForever('search-products', function () use ($value) {
-            return Product::where('descripcion', 'like', "%$value%")
-                ->orWhere('marca', 'like', "%$value%")
+            return Product::where('nombre', 'like', "%$value%")
+                ->orWhere('description', 'like', "%$value%")
                 ->orWhere('presentacion', 'like', "%$value%")
                 ->orWhere('codigo_interno', 'like', "%$value%")
                 ->get();
@@ -160,7 +160,7 @@ class PosController extends Controller
                                             <div class="card-body" style="border-radius: 5px ">';
             if (!empty($product["codigo_interno"]))
                 $html_products .= '<small class="fw-bold">' . $product["codigo_interno"] . ' -</small>';
-            $html_products .= '<h6 class="mb-2 pb-1">' . $product["descripcion"] . '</h6>
+            $html_products .= '<h6 class="mb-2 pb-1">' . $product["nombre"] . '</h6>
                                                 <p class="small"></p>
                                                 <div class="row mb-3 g-3">
                                                     <div class="col-6">
