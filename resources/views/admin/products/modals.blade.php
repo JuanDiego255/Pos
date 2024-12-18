@@ -35,7 +35,7 @@
                         <div class="invalid-feedback">El campo no debe estar vacío.</div>
                     </div>
 
-                    <div class="col-12 col-md-6 mb-3">
+                    {{-- <div class="col-12 col-md-6 mb-3">
                         <label class="form-label" for="marca">Marca</label>
                         <input type="text" id="marca" class="form-control text-uppercase" name="marca" />
                         <div class="invalid-feedback">El campo no debe estar vacío.</div>
@@ -46,9 +46,9 @@
                         <input type="text" id="presentacion" class="form-control text-uppercase"
                             name="presentacion" />
                         <div class="invalid-feedback">El campo no debe estar vacío.</div>
-                    </div>
+                    </div> --}}
 
-                    <div class="col-12 mb-3">
+                   {{--  <div class="col-12 mb-3">
                         <label class="form-label" for="operacion">Operaci&oacute;n</label>
                         <select name="operacion" id="operacion" class="form-control">
                             @foreach ($type_inafects as $type_inafect)
@@ -57,12 +57,12 @@
                             @endforeach
                         </select>
                         <div class="invalid-feedback">El campo no debe estar vacío.</div>
-                    </div>
+                    </div> --}}
 
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label" for="precio_compra">Precio Compra</label>
                         <div class="input-group">
-                            <span class="input-group-text" id="basic-addon11">S/</span>
+                            <span class="input-group-text" id="basic-addon11">{{ $moneda_pais }}</span>
                             <input type="text" id="precio_compra" class="form-control" name="precio_compra">
                             <div class="invalid-feedback">El campo no debe estar vacío.</div>
                         </div>
@@ -71,13 +71,13 @@
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label" for="precio_venta">Precio Venta</label>
                         <div class="input-group">
-                            <span class="input-group-text" id="basic-addon11">S/</span>
+                            <span class="input-group-text" id="basic-addon11">{{ $moneda_pais }}</span>
                             <input type="text" id="precio_venta" class="form-control" name="precio_venta">
                             <div class="invalid-feedback">El campo no debe estar vacío.</div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-6 mb-3">
+                   {{--  <div class="col-12 col-md-6 mb-3">
                         <label class="form-label" class="checkbox-inline" for="stock"> ¿Controlar stock? <input type="checkbox"
                                 class="align-middle" name="check_stock"></label>
                         <input type="text" class="form-control" id="stock" name="stock" disabled>
@@ -87,7 +87,7 @@
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label" for="fecha_vencimiento">Fecha de vencimiento</label>
                         <input type="date" class="form-control" id="fecha_vencimiento" name="fecha_vencimiento">
-                    </div>
+                    </div> --}}
 
                     <div class="col-12 mb-3">
                         <small class="fw-medium d-block"><label class="form-label">Tipo Producto</label></small>

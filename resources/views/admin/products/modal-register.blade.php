@@ -34,20 +34,20 @@
                         <div class="invalid-feedback">El campo no debe estar vacío.</div>
                     </div>
 
-                    <div class="col-12 col-md-6 mb-3">
+                    {{-- <div class="col-12 col-md-6 mb-3">
                         <label class="form-label" for="marca">Marca</label>
                         <input type="text" id="marca" class="form-control text-uppercase" name="marca" />
                         <div class="invalid-feedback">El campo no debe estar vacío.</div>
-                    </div>
+                    </div> --}}
 
-                    <div class="col-12 col-md-6 mb-3">
+                   {{--  <div class="col-12 col-md-6 mb-3">
                         <label class="form-label" for="presentacion">Presentaci&oacute;n</label>
                         <input type="text" id="presentacion" class="form-control text-uppercase"
                             name="presentacion" />
                         <div class="invalid-feedback">El campo no debe estar vacío.</div>
-                    </div>
+                    </div> --}}
 
-                    <div class="col-12 mb-3">
+                   {{--  <div class="col-12 mb-3">
                         <label class="form-label" for="operacion">Operaci&oacute;n</label>
                         <select name="operacion" id="operacion" class="form-control">
                             @foreach ($type_inafects as $type_inafect)
@@ -56,7 +56,7 @@
                             @endforeach
                         </select>
                         <div class="invalid-feedback">El campo no debe estar vacío.</div>
-                    </div>
+                    </div> --}}
 
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label" for="precio_compra">Precio Compra</label>
@@ -76,17 +76,17 @@
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-6 mb-3">
+                   {{--  <div class="col-12 col-md-6 mb-3">
                         <label class="checkbox-inline" for="stock"> ¿Controlar stock? <input
                             type="checkbox" class="align-middle" name="check_stock"></label>
                         <input type="text" class="form-control" id="stock" name="stock" disabled>
                         <div class="invalid-feedback">El campo no debe estar vacío.</div>
-                    </div>
+                    </div> --}}
 
-                    <div class="col-12 col-md-6 mb-3">
+                    {{-- <div class="col-12 col-md-6 mb-3">
                         <label class="form-label" for="fecha_vencimiento">Fecha de vencimiento</label>
                         <input type="date" class="form-control" id="fecha_vencimiento" name="fecha_vencimiento">
-                    </div>
+                    </div> --}}
 
                     <div class="col-12 mb-3">
                         <small class="fw-medium d-block"><label class="form-label">Tipo Producto</label></small>

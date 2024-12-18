@@ -28,7 +28,6 @@
                                 <tr>
                                     <th width="8%">#</th>
                                     <th>Descripci&oacute;n</th>
-                                    <th width="10%">Und.</th>
                                     <th width="15%">Precio Compra</th>
                                     <th width="13%">Precio Venta</th>
                                     <th width="10%">Acciones</th>

@@ -44,10 +44,6 @@
                     data        : 'descripcion'
                 },
                 {
-                    data        : 'codigo_unidad',
-                    className   : 'text-center'
-                },
-                {
                     data        : 'precio_compra',
                     className   : 'text-center'
                 },
