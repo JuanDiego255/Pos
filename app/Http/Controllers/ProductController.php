@@ -362,8 +362,10 @@ class ProductController extends Controller
             $product->idcodigo_igv = 10;
             $product->marca = $marca;
             $product->igv = 0;
+            $product->status = 1;
             $product->codigo_interno = $randomNumbers;
             $product->codigo_barras = $randomNumbers;
+            $product->nombre = mb_strtoupper($request->nombre);
             $product->descripcion = mb_strtoupper($descripcion);
             $product->precio_compra = $precio_compra;
             $product->precio_venta = $precio_venta;
@@ -414,7 +416,9 @@ class ProductController extends Controller
             // Extraer datos de la solicitud
             $id = $request->input('id');
             $descripcion = trim($request->input('descripcion'));
+            $nombre = trim($request->input('nombre'));
             $precio_compra = $request->input('precio_compra');
+            $status = $request->input('status');
             $marca = $request->input('marca');
             $precio_venta = $request->input('precio_venta');
             $impuesto = $request->input('impuesto');
@@ -435,7 +439,9 @@ class ProductController extends Controller
             $product->idunidad = 61;
             $product->idcodigo_igv = 10;
             $product->marca = $marca;
+            $product->status = $status;
             $product->igv = 0;
+            $product->nombre = mb_strtoupper($nombre);
             $product->descripcion = mb_strtoupper($descripcion);
             $product->precio_compra = $precio_compra;
             $product->precio_venta = $precio_venta;
