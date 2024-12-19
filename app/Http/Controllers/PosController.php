@@ -144,8 +144,6 @@ class PosController extends Controller
         Cache::pull('search-products');
         $products = Cache::rememberForever('search-products', function () use ($value) {
             return Product::where('nombre', 'like', "%$value%")
-                ->orWhere('description', 'like', "%$value%")
-                ->orWhere('presentacion', 'like', "%$value%")
                 ->orWhere('codigo_interno', 'like', "%$value%")
                 ->get();
         });
