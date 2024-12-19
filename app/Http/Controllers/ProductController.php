@@ -351,6 +351,7 @@ class ProductController extends Controller
         try {
             // Extraer datos de la solicitud
             $descripcion = trim($request->input('descripcion'));
+            $nombre = trim($request->input('nombre'));
             $precio_compra = $request->input('precio_compra');
             $marca = $request->input('marca');
             $id = $request->input('id');
@@ -364,6 +365,7 @@ class ProductController extends Controller
             $product->idunidad = 61;
             $product->idcodigo_igv = 10;
             $product->marca = $marca;
+            $product->nombre = $nombre;
             $product->igv = 0;
             $product->status = 1;
             $product->codigo_interno = $randomNumbers;
