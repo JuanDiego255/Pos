@@ -135,10 +135,16 @@
             <ul class="list-unstyled">
                 <li class="price-detail">
                     <div class="detail-title fw-semibold detail-total">Nombre</div>
-                    <div class="detail-description"></div>
+                    <div class="detail-name"></div>
                 </li>
             </ul>
             <ul class="list-unstyled">
+                <li class="price-detail">
+                    <div class="detail-title fw-semibold detail-total">Descripci&oacute;n</div>
+                    <div class="detail-description"></div>
+                </li>
+            </ul>
+           {{--  <ul class="list-unstyled">
                 <li class="price-detail">
                     <div class="detail-title fw-semibold detail-total">Marca</div>
                     <div class="detail-brand"></div>
@@ -149,7 +155,7 @@
                     <div class="detail-title fw-semibold detail-total">Presentaci&oacute;n</div>
                     <div class="detail-presentation"></div>
                 </li>
-            </ul>
+            </ul> --}}
             <ul class="list-unstyled">
                 <li class="price-detail">
                     <div class="detail-title fw-semibold detail-total">Precio Compra</div>
@@ -162,7 +168,7 @@
                     <div class="detail-sale"></div>
                 </li>
             </ul>
-            <ul class="list-unstyled">
+           {{--  <ul class="list-unstyled">
                 <li class="price-detail">
                     <div class="detail-title fw-semibold detail-total">Total Stock</div>
                     <div class="detail-stock"></div>
@@ -173,7 +179,7 @@
                     <div class="detail-title fw-semibold detail-total">Fecha Vencimiento</div>
                     <div class="detail-expiration"></div>
                 </li>
-            </ul>
+            </ul> --}}
             <hr>
         </div>
     </div>

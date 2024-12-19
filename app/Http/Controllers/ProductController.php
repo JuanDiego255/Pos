@@ -28,6 +28,16 @@ class ProductController extends Controller
 
     public function get()
     {
+        //Botones ocultos
+        /*  <a class="dropdown-item btn-detail" data-id="' . $id . '" href="javascript:void(0);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2 mr-50 menu-icon"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+        <span> Editar</span>
+    </a>
+    <a class="dropdown-item btn-confirm" data-id="' . $id . '" href="javascript:void(0);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash mr-50 menu-icon"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        <span> Eliminar</span>
+    </a> */
+        //Botones ocultos
         $products     = DB::select("CALL get_list_products_data()");
         return Datatables()
             ->of($products)
@@ -39,15 +49,7 @@ class ProductController extends Controller
                                         <a class="dropdown-item btn-view" data-id="' . $id . '" href="javascript:void(0);">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye mr-50 menu-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                             <span>Ver detalle</span>
-                                        </a>
-                                        <a class="dropdown-item btn-detail" data-id="' . $id . '" href="javascript:void(0);">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2 mr-50 menu-icon"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-                                            <span> Editar</span>
-                                        </a>
-                                        <a class="dropdown-item btn-confirm" data-id="' . $id . '" href="javascript:void(0);">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash mr-50 menu-icon"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                            <span> Eliminar</span>
-                                        </a>
+                                        </a>                                       
                                     </div>
                                 </div>';
                 return $btn;
@@ -330,10 +332,11 @@ class ProductController extends Controller
         $product                    = Product::where('id', $id)->first();
         $data["codigo"]             = (empty($product->codigo_interno)) ? '-' : $product->codigo_interno;
         $data["descripcion"]        = $product->descripcion;
+        $data["nombre"]        = $product->nombre;
         $data["marca"]              = (empty($product->marca)) ? '-' : $product->marca;
         $data["presentacion"]       = (empty($product->presentacion)) ? '-' : $product->presentacion;
-        $data["precio_compra"]      = 'S/' . $product->precio_compra;
-        $data["precio_venta"]       = 'S/' . $product->precio_venta;
+        $data["precio_compra"]      = '₡ ' . $product->precio_compra;
+        $data["precio_venta"]       = '₡ ' . $product->precio_venta;
         $data["stock"]              = (empty($product->stock)) ? '-' : $product->stock;
         $data["fecha_vencimiento"]  = (empty($product->fecha_vencimiento)) ? '-' : $product->fecha_vencimiento;
         echo json_encode([

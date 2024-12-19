@@ -1,4 +1,10 @@
 <script>
+    function initializeTooltips() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
     var setTimeOutBuscador = '',
         idtable = $('input[name="idtable"]').val();
 
@@ -27,6 +33,7 @@
                     return;
                 }
                 $('#wrapper-products').html(r.html_products);
+                initializeTooltips();
             },
             dataType: 'json'
         });
@@ -457,7 +464,8 @@
                 close_block('#layout-content');
                 let html = '<option></option>';
                 $.each(r.tables, function(index, table) {
-                    html += `<option value="${table.id}">${table.descripcion + ' - ' + table.sala}</option>`;
+                    html +=
+                        `<option value="${table.id}">${table.descripcion + ' - ' + table.sala}</option>`;
                 });
 
                 $('#modalChangeTable select[name="idtable_up"]').html(html).select2({
@@ -501,7 +509,9 @@
                     showConfirmButton: false,
                     timer: 1500
                 }).then(() => {
-                    let idtable = {id: r.idtable};
+                    let idtable = {
+                        id: r.idtable
+                    };
                     window.location.href = route('admin.register_order', idtable);
                 })
             },

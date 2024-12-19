@@ -88,29 +88,35 @@ class PosController extends Controller
         $idpais         = (Business::where('id', 1)->first()->idpais == null) ? 4 : Business::where('id', 1)->first()->idpais;
         $data["moneda_pais"]  = CountryU::where('id', $idpais)->first()->signo;
 
-
         if (!empty($products)) {
             foreach ($products as $product) {
                 $html_products .= '<div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-2 item" style="cursor: pointer;" >
-                                        <div id="' . $product->id . '" class="card h-100  btn-add-product-cart btn-update-product-cart" data-id="' . $product->id . '" data-cantidad="1" data-precio="' . $product->precio_venta . '">
-                                            <div class="card-body" style="border-radius: 5px ">';
-                if (!empty($product->codigo_interno))
+                                    <div id="' . $product->id . '" 
+                                         class="card h-100 btn-add-product-cart btn-update-product-cart" 
+                                         data-id="' . $product->id . '" 
+                                         data-cantidad="1" 
+                                         data-precio="' . $product->precio_venta . '" 
+                                         data-bs-toggle="tooltip" 
+                                         data-bs-placement="right"
+                                         title="' . htmlspecialchars($product->descripcion, ENT_QUOTES, 'UTF-8') . '">
+                                        <div class="card-body" style="border-radius: 5px;">';
+                if (!empty($product->codigo_interno)) {
                     $html_products .= '<small class="fw-bold">' . $product->codigo_interno . ' -</small>';
+                }
                 $html_products .= '<h6 class="mb-2 pb-1">' . $product->nombre . '</h6>
-                                                <p class="small"></p>
-                                                <div class="row mb-3 g-3">
-                                                    <div class="col-6">
-                                                        <div class="d-flex">
-                                                            <div>
-                                                                <h6 class="mb-0 fw-bold text-nowrap text-primary">'. $data["moneda_pais"] .' ' . number_format($product->precio_venta, 2, ".", "") . '
-                                                                </h6>
-                                                            </div>
-                                                        </div>
+                                        <p class="small"></p>
+                                        <div class="row mb-3 g-3">
+                                            <div class="col-6">
+                                                <div class="d-flex">
+                                                    <div>
+                                                        <h6 class="mb-0 fw-bold text-nowrap text-primary">' . $data["moneda_pais"] . ' ' . number_format($product->precio_venta, 2, ".", "") . '</h6>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>';
+                                    </div>
+                                </div>
+                            </div>';
             }
         } else {
             $html_products .= '<div class="col-12 item">No hay productos registrados</div>';
@@ -121,6 +127,7 @@ class PosController extends Controller
             'html_products' => $html_products
         ]);
     }
+
 
     public function search_view_product(Request $request)
     {
@@ -166,7 +173,7 @@ class PosController extends Controller
                                                     <div class="col-6">
                                                         <div class="d-flex">
                                                             <div>
-                                                                <h6 class="mb-0 fw-bold text-nowrap text-primary">'. $data["moneda_pais"] .' ' . number_format($product["precio_venta"], 2, ".", "") . '
+                                                                <h6 class="mb-0 fw-bold text-nowrap text-primary">' . $data["moneda_pais"] . ' ' . number_format($product["precio_venta"], 2, ".", "") . '
                                                                 </h6>
                                                             </div>
                                                         </div>
@@ -228,16 +235,16 @@ class PosController extends Controller
 
         $html_totales   .= '<div class="d-flex justify-content-between align-items-center mt-3">
                                     <p class="mb-0">OP. Gravadas</p>
-                                    <h6 class="mb-0">'. $data["moneda_pais"] .'' . number_format(($cart['exonerada'] + $cart['gravada'] + $cart['inafecta']), 2, ".", "") . '</h6>
+                                    <h6 class="mb-0">' . $data["moneda_pais"] . '' . number_format(($cart['exonerada'] + $cart['gravada'] + $cart['inafecta']), 2, ".", "") . '</h6>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center mt-3">
                                     <p class="mb-0">IGV</p>
-                                    <h6 class="mb-0">'. $data["moneda_pais"] .'' . number_format($cart['igv'], 2, ".", "") . '</h6>
+                                    <h6 class="mb-0">' . $data["moneda_pais"] . '' . number_format($cart['igv'], 2, ".", "") . '</h6>
                                 </div>
                                 <hr>
                                 <div class="d-flex justify-content-between align-items-center mt-3 pb-1">
                                     <p class="mb-0">Total</p>
-                                    <h6 class="mb-0">'. $data["moneda_pais"] .'' . number_format($cart['total'], 2, ".", "") . '</h6>
+                                    <h6 class="mb-0">' . $data["moneda_pais"] . '' . number_format($cart['total'], 2, ".", "") . '</h6>
                                 </div>';
 
         echo json_encode([
@@ -857,7 +864,7 @@ class PosController extends Controller
 
         foreach (session()->get('pos')['products'] as $index => $product) {
             if ($id == $product['id'] && $product['opcion'] == $opcion) {
-                if($opcion == 1) {
+                if ($opcion == 1) {
                     if ($product["stock"] != NULL) {
                         if ($product["stock"] < ($product['cantidad'] + $cantidad)) {
                             return false;
@@ -896,7 +903,7 @@ class PosController extends Controller
 
         foreach (session()->get('pos')['products'] as $index => $product) {
             if ($id == $product['id'] && $product['opcion'] == $opcion) {
-                if($opcion == 1) {
+                if ($opcion == 1) {
                     if ($product["stock"] != NULL) {
                         if ($product["stock"] < $cantidad) {
                             return false;

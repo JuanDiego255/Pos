@@ -73,7 +73,7 @@
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Cantidad&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     </th>
                                     <th class="text-center" width="14%">Precio Unitario</th>
-                                    <th class="text-center" width="10%">Importe</th>
+                                    <th class="text-center" width="10%">Total</th>
                                     <th class="text-right" width="5%"></th>
                                 </tr>
                             </thead>

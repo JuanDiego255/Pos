@@ -13,12 +13,12 @@
                     <div class="card-title mb-0">
                         <h5 class="card-title mb-0">Gesti&oacute;n de Productos</h5>
                     </div>
-                    <div class="dt-action-buttons text-end">
+                    {{-- <div class="dt-action-buttons text-end">
                         <div class="dt-buttons d-inline-flex">
                             <button class="dt-button create-new btn btn-primary waves-effect waves-light btn-create-product" style="margin-right: 3px;" tabindex="0"><span><i class="ti ti-plus me-sm-1"></i><span class="d-none d-sm-inline-block">Nuevo</span></span></button>
                             <button class="dt-button create-new btn btn-success waves-effect waves-light btn-upload ml-2" tabindex="0"><span><i class="ti ti-upload me-sm-1"></i><span class="d-none d-sm-inline-block">Cargar Excel</span></span></button>
                         </div>
-                    </div>
+                    </div> --}}
                     
                 </div>
                 <div class="p-3">

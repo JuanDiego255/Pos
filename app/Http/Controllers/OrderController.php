@@ -1408,23 +1408,20 @@ class OrderController extends Controller
             return;
         }
 
-        // Obtener todas las órdenes, incluyendo las que no tienen mesa asignada
         $orders = Order::select('orders.*')
             ->leftJoin('tables', 'orders.id', '=', 'tables.idorden')
-            ->where('orders.estado','!=',2)
+            ->where('orders.estado', '!=', 2)
             ->orderBy('orders.updated_at', 'DESC')
             ->get();
 
         $productos = [];
         $html = '';
 
-        // Validar si las órdenes están vacías
         if ($orders->isEmpty()) {
             $html .= '<div class="col-md-12"><img class="img-fluid mx-auto" src="' . asset("assets/img/elements/empty-kitchen.png") . '" style="width: 50%; height: 100%; display: block;"></div>';
         } else {
             foreach ($orders as $order) {
-                // Obtener los productos relacionados con la orden
-                $productos[$order->id] = DetailKitchenOrder::select('detail_kitchen_orders.*', 'products.descripcion as producto')
+                $productos[$order->id] = DetailKitchenOrder::select('detail_kitchen_orders.*', 'products.descripcion as descripcion', 'products.nombre as nombre')
                     ->join('products', 'detail_kitchen_orders.idproducto', '=', 'products.id')
                     ->where('idorden', $order->id)
                     ->get();
@@ -1440,9 +1437,9 @@ class OrderController extends Controller
                 if ($countOrderActive == 0) {
                     $pedidoFinalizado = DetailKitchenOrder::where('estado_producto', 1)
                         ->orderBy('updated_at', 'desc')->first();
-                    if($pedidoFinalizado){
+                    if ($pedidoFinalizado) {
                         $pedido_min_fin = Carbon::parse($order->updated_at)->diffInMinutes($pedidoFinalizado->updated_at);
-                    }                    
+                    }
                 }
                 $tiempo = $minutos < 60
                     ? $minutos . ' min'
@@ -1467,7 +1464,6 @@ class OrderController extends Controller
                                 </div>
                                 <div style="flex: 1 1 auto; padding: 0.6rem 0.6rem">';
 
-                // Mostrar las notas de la orden, si existen
                 if (!empty($order->observaciones)) {
                     $html .= '<p class="card-text text-muted mb-3"><strong>Notas para esta orden:</strong> ' . $order->observaciones . '</p>';
                 }
@@ -1476,18 +1472,21 @@ class OrderController extends Controller
                     foreach ($productos[$order->id] as $pro) {
                         $tachado = $pro->estado_producto == 0 ? '' : 'text-decoration-line-through text-muted';
                         $pointer = $pro->estado_producto == 0 ? '' : 'pointer-events: none';
-                        $descripcion = intval($pro->cantidad) . ' ' . $pro->producto;
+                        $descripcion = intval($pro->cantidad) . ' ' . $pro->nombre;
                         $iddetalle = $pro->id;
                         $idproducto = $pro->idproducto;
                         $idorden = $pro->idorden;
 
-                        $html .= '<a href="" data-iddetalle="' . $iddetalle . '" data-idproducto="' . $idproducto . '" data-idorden="' . $idorden . '" class="text-dark btn-change-status" style="' . $pointer . '"><p class="card-text mb-2 ' . $tachado . '">' . $descripcion . '</p></a>';
+                        $html .= '<a href="" data-iddetalle="' . $iddetalle . '" data-idproducto="' . $idproducto . '" data-idorden="' . $idorden . '" class="text-dark btn-change-status" style="' . $pointer . '">
+                                    <p class="card-text mb-2 ' . $tachado . '">' . $descripcion . '</p>
+                                    <p class="card-text text-muted small ms-3 ' . $tachado . '">' . htmlspecialchars($pro->descripcion, ENT_QUOTES, 'UTF-8') . '</p>
+                                  </a>';
 
-                        // Procesar las extras si existen
                         if (!is_null($pro->extras)) {
                             $extraIds = explode(',', $pro->extras);
                             $extras = Extras::whereIn('id', $extraIds)->get();
 
+                            $html .= '<p class="card-text text-muted mb-2"><strong>Extras:</strong></p>';
                             foreach ($extras as $extra) {
                                 $html .= '<p class="card-text text-muted ms-3">
                                         - ' . $extra->name . ' (₡' . number_format($extra->price, 2) . ')
@@ -1508,7 +1507,6 @@ class OrderController extends Controller
             'html'      => $html
         ]);
     }
-
 
     public function change_status(Request $request)
     {

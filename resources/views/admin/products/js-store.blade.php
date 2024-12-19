@@ -189,6 +189,7 @@
                 close_block('#layout-content');
                 $('.detail-code').html(r.data.codigo);
                 $('.detail-description').html(r.data.descripcion);
+                $('.detail-name').html(r.data.nombre);
                 $('.detail-brand').html(r.data.marca);
                 $('.detail-presentation').html(r.data.presentacion);
                 $('.detail-buy').html(r.data.precio_compra);

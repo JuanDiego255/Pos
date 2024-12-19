@@ -1,4 +1,10 @@
 <script>
+    function initializeTooltips() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
     var setTimeOutBuscador = '';
 
     function open_modal_client() {
@@ -70,6 +76,7 @@
                 }
 
                 $('#wrapper-products').html(r.html_products);
+                initializeTooltips();
             },
             dataType: 'json'
         });
