@@ -19,6 +19,7 @@ class CreateGetListProductsStoredProcedures extends Migration
             'CREATE PROCEDURE get_list_products()
             BEGIN
                 SELECT * FROM products 
+                WHERE status = 1
                 ORDER BY id DESC;
             END;');
     }

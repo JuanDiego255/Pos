@@ -419,6 +419,7 @@ class ProductController extends Controller
             // Extraer datos de la solicitud
             $id = $request->input('id');
             $descripcion = trim($request->input('descripcion'));
+            $kind = trim($request->input('kind'));
             $nombre = trim($request->input('nombre'));
             $precio_compra = $request->input('precio_compra');
             $status = $request->input('status');
@@ -437,7 +438,15 @@ class ProductController extends Controller
                     'type' => 'error'
                 ]);
             }
-
+            if ($kind == "update_status") {
+                $product->status = $status;
+                $product->save();
+                return response()->json([
+                    'status' => true,
+                    'msg' => 'Producto actualizado correctamente',
+                    'type' => 'success'
+                ]);
+            }
             // Actualizar los campos del producto
             $product->idunidad = 61;
             $product->idcodigo_igv = 10;
