@@ -1076,91 +1076,128 @@ class OrderController extends Controller
     public function process_pay(Request $request)
     {
         if (!$request->ajax()) {
-            echo json_encode([
-                'status'    => false,
-                'msg'       => 'Intente de nuevo',
-                'type'      => 'warning'
+            return response()->json([
+                'status' => false,
+                'msg' => 'Intente de nuevo',
+                'type' => 'warning'
             ]);
-            return;
         }
 
-        $id                 = $request->input('id');
-        $order              = Order::where('id', $id)->first();
+        $id = $request->input('id');
+        $order = Order::with(['detailOrders' => function ($query) {
+            $query->where('estado_pago', false)->with('product');
+        }])->where('id', $id)->first();
 
+        if (!$order) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Orden no encontrada',
+                'type' => 'error'
+            ]);
+        }
 
-        $iduser             = Auth::user()['id'];
-        $idcash             = Auth::user()['idcaja'];
-        $search             = count(ArchingCash::where('idcaja', $idcash)->where('idusuario', $iduser)->where('estado', 1)->get());
+        $iduser = Auth::user()->id;
+        $idcash = Auth::user()->idcaja;
+        $search = ArchingCash::where('idcaja', $idcash)
+            ->where('idusuario', $iduser)
+            ->where('estado', 1)
+            ->count();
+
         if ($search < 1) {
-            echo json_encode([
-                'status'    => false,
-                'msg'       => 'Primero debe aperturar caja',
-                'type'      => 'warning'
+            return response()->json([
+                'status' => false,
+                'msg' => 'Primero debe aperturar caja',
+                'type' => 'warning'
             ]);
-            return;
         }
-        echo json_encode([
-            'status'        => true,
-            'order'         => $order
+
+        return response()->json([
+            'status' => true,
+            'order' => $order,
+            'products' => $order->detailOrders->map(function ($detail) {
+                return [
+                    'id' => $detail->idproducto,
+                    'name' => $detail->product->nombre,
+                    'quantity' => $detail->cantidad,
+                    'price' => $detail->precio_total,
+                ];
+            })
         ]);
     }
+
+
 
     public function save_billing(Request $request)
     {
         if (!$request->ajax()) {
-            echo json_encode([
-                'status'    => false,
-                'msg'       => 'Intente de nuevo',
-                'type'      => 'warning'
+            return response()->json([
+                'status' => false,
+                'msg' => 'Intente de nuevo',
+                'type' => 'warning'
             ]);
-            return;
         }
+
         try {
             DB::beginTransaction();
-            $idorder                = $request->input('idorder');
-            $order                  = Order::where('id', $idorder)->first();
-            $iddocumento_tipo       = $request->input('iddocumento_tipo');
-            $dni_ruc                = $request->input('dni_ruc');
-            $modo_pago              = $request->input('modo_pago');
-            $difference             = $request->input('difference');
-            $serie_sale             = explode('-', $request->input('serie_sale'));
-            $serie                  = $serie_sale[0];
-            $correlativo            = $serie_sale[1];
-            $fecha_emision          = date('Y-m-d');
+
+            $idorder = $request->input('idorder');
+            $order = Order::where('id', $idorder)->first();
+            $iddocumento_tipo = $request->input('iddocumento_tipo');
             $fecha_vencimiento      = date('Y-m-d');
-            $id_arching             = ArchingCash::where('idcaja', Auth::user()['idcaja'])->where('idusuario', Auth::user()['id'])->latest('id')->first()['id'];
-            // Detail payments
+            $dni_ruc = $request->input('dni_ruc');
+            $modo_pago = $request->input('modo_pago');
             $quantity_paying        = number_format($request->input('quantity_paying'), 2, ".", "");
             $quantity_paying_2      = number_format($request->input('quantity_paying_2'), 2, ".", "");
             $quantity_paying_3      = number_format($request->input('quantity_paying_3'), 2, ".", "");
             $pay_mode               = $modo_pago;
             $pay_mode_2             = $request->input('modo_pago_2');
             $pay_mode_3             = $request->input('modo_pago_3');
-            $id_sale                = NULL;
-            $detalle                = DetailOrder::select(
-                'detail_orders.*',
-                'products.descripcion as producto',
-                'products.codigo_interno as codigo_interno',
-                'products.idcodigo_igv',
-                'units.codigo as unidad'
-            )
-                ->join('products', 'detail_orders.idproducto', '=', 'products.id')
-                ->join('units', 'products.idunidad', '=', 'units.id')
-                ->leftJoin('igv_type_affections', 'products.idcodigo_igv', 'igv_type_affections.id')
-                ->where('detail_orders.idorden', $idorder)
-                ->get();
+            $difference = $request->input('difference');
+            $serie_sale = explode('-', $request->input('serie_sale'));
+            $serie = $serie_sale[0];
+            $correlativo = $serie_sale[1];
+            $fecha_emision = date('Y-m-d');
+            $id_arching = ArchingCash::where('idcaja', Auth::user()['idcaja'])
+                ->where('idusuario', Auth::user()['id'])
+                ->latest('id')
+                ->first()['id'];
 
-            if (empty($dni_ruc)) {
-                echo json_encode([
-                    'status'    => false,
-                    'msg'       => 'Seleccione un cliente',
-                    'type'      => 'warning'
+            $selectedProducts = $request->input('selected_ids');
+            $selectedProductIds = array_filter(explode(',', $selectedProducts));
+
+            if (empty($selectedProducts)) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'No se seleccionaron productos para pagar.',
+                    'type' => 'warning'
                 ]);
-                return;
             }
 
-            if ($iddocumento_tipo == "7") // NV
-            {
+            // Generar factura solo para los productos seleccionados
+            $total = 0;
+            foreach ($selectedProductIds as $productId) {
+                $product = DetailOrder::where('idorden', $idorder)
+                    ->where('idproducto', $productId)
+                    ->first();
+                if ($product) {
+                    // Calcular total por los productos seleccionados
+                    $total += $product->precio_total * $product->cantidad;
+
+                    // Actualizar estado del producto a pagado
+                    $product->update(['estado_pago' => true]);
+                }
+            }
+
+            if (empty($dni_ruc)) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'Seleccione un cliente',
+                    'type' => 'warning'
+                ]);
+            }
+
+            // Crear factura o nota de venta
+            if ($iddocumento_tipo == "7") { // Nota de Venta
                 SaleNote::insert([
                     'idtipo_comprobante'    => $iddocumento_tipo,
                     'serie'                 => $serie,
@@ -1172,32 +1209,46 @@ class OrderController extends Controller
                     'idmoneda'              => 3,
                     'idpago'                => 1,
                     'modo_pago'             => $modo_pago,
-                    'exonerada'             => $order->exonerada,
+                    'exonerada'             => $total,
                     'inafecta'              => $order->inafecta,
                     'gravada'               => $order->gravada,
                     'anticipo'              => "0.00",
                     'igv'                   => $order->igv,
                     'gratuita'              => "0.00",
                     'otros_cargos'          => $order->otros_cargos,
-                    'total'                 => $order->total,
+                    'total'                 => $total,
                     'estado'                => 1,
                     'idusuario'             => Auth::user()['id'],
                     'idcaja'                => $id_arching,
                     'vuelto'                => $difference
                 ]);
 
-                $idfactura                  = SaleNote::latest('id')->first()['id'];
-                // Detail
-                foreach ($detalle as $product) {
+                $idfactura = SaleNote::latest('id')->first()['id'];
+
+                // Insertar detalles de la nota de venta
+                foreach ($selectedProductIds as $productId) {
+                    $product = DetailOrder::select(
+                        'detail_orders.*',
+                        'products.descripcion as producto',
+                        'products.codigo_interno as codigo_interno',
+                        'products.idcodigo_igv',
+                        'units.codigo as unidad'
+                    )
+                        ->join('products', 'detail_orders.idproducto', '=', 'products.id')
+                        ->join('units', 'products.idunidad', '=', 'units.id')
+                        ->leftJoin('igv_type_affections', 'products.idcodigo_igv', 'igv_type_affections.id')
+                        ->where('detail_orders.idproducto', $productId)
+                        ->where('detail_orders.idorden', $idorder)
+                        ->first();
                     DetailSaleNote::insert([
-                        'idnotaventa'           => $idfactura,
-                        'idproducto'            => $product['idproducto'],
-                        'cantidad'              => $product['cantidad'],
+                        'idnotaventa' => $idfactura,
+                        'idproducto' => $product->idproducto,
                         'descuento'             => 0.0000000000,
+                        'cantidad' => $product->cantidad,
                         'igv'                   => $product["igv"],
                         'id_afectacion_igv'     => $product['idcodigo_igv'],
-                        'precio_unitario'       => $product['precio_unitario'],
-                        'precio_total'          => ($product['precio_unitario'] * $product['cantidad'])
+                        'precio_unitario' => $product->precio_unitario,
+                        'precio_total' => $product->precio_total
                     ]);
 
                     if ($product["stock"] != NULL) {
@@ -1238,8 +1289,6 @@ class OrderController extends Controller
                     ]);
                 }
 
-
-                // Gen ticket data to pdf
                 $factura                            = SaleNote::where('id', $idfactura)->first();
                 $ruc                                = Business::where('id', 1)->first()->ruc;
                 $codigo_comprobante                 = TypeDocument::where('id', $factura->idtipo_comprobante)->first()->codigo;
@@ -1252,7 +1301,7 @@ class OrderController extends Controller
                 Serie::where('idtipo_documento', $iddocumento_tipo)->where('idcaja', Auth::user()['idcaja'])->update([
                     'correlativo'   => $nuevo_correlativo
                 ]);
-            } else { // B/F
+            } else { // Factura
                 $business                   = Business::where('id', 1)->first();
                 $type_document              = TypeDocument::where('id', $iddocumento_tipo)->first();
                 $client                     = Client::where('id', $dni_ruc)->first();
@@ -1264,7 +1313,6 @@ class OrderController extends Controller
                 QrCode::format('png')
                     ->size(140)
                     ->generate($qr, 'files/billings/qr/' . $name_qr . '.png');
-
                 Billing::insert([
                     'idtipo_comprobante'    => $iddocumento_tipo,
                     'serie'                 => $serie,
@@ -1295,18 +1343,34 @@ class OrderController extends Controller
                     'vuelto'                => $difference,
                     'qr'                    => $name_qr . '.png'
                 ]);
-                $idfactura                  = Billing::latest('id')->first()['id'];
 
-                foreach ($detalle as $product) {
+                $idfactura = Billing::latest('id')->first()['id'];
+
+                // Insertar detalles de la factura
+                foreach ($selectedProductIds as $productId) {
+                    $product = DetailOrder::select(
+                        'detail_orders.*',
+                        'products.descripcion as producto',
+                        'products.codigo_interno as codigo_interno',
+                        'products.idcodigo_igv',
+                        'units.codigo as unidad'
+                    )
+                        ->join('products', 'detail_orders.idproducto', '=', 'products.id')
+                        ->join('units', 'products.idunidad', '=', 'units.id')
+                        ->leftJoin('igv_type_affections', 'products.idcodigo_igv', 'igv_type_affections.id')
+                        ->where('detail_orders.idproducto', $productId)
+                        ->where('detail_orders.idorden', $idorder)
+                        ->first();
+
                     DetailBilling::insert([
-                        'idfacturacion'         => $idfactura,
-                        'idproducto'            => $product['idproducto'],
-                        'cantidad'              => $product['cantidad'],
+                        'idfacturacion' => $idfactura,
+                        'idproducto' => $product->idproducto,
+                        'cantidad' => $product->cantidad,
                         'descuento'             => 0.0000000000,
                         'igv'                   => $product["igv"],
                         'id_afectacion_igv'     => $product['idcodigo_igv'],
-                        'precio_unitario'       => $product['precio_unitario'],
-                        'precio_total'          => ($product['precio_unitario'] * $product['cantidad'])
+                        'precio_unitario' => $product->precio_unitario,
+                        'precio_total' => $product->precio_total
                     ]);
 
                     if ($product["stock"] != NULL) {
@@ -1315,7 +1379,6 @@ class OrderController extends Controller
                         ]);
                     }
                 }
-
                 // Insert pay mode
                 if ($quantity_paying != "0.00") {
                     DetailPayment::insert([
@@ -1361,19 +1424,26 @@ class OrderController extends Controller
                 ]);
             }
 
-            Order::where('id', $order->id)->update([
-                'estado'            => 1,
-                'idtipo_documento'  => $iddocumento_tipo,
-                'idventa'           => $id_sale
-            ]);
-            Table::where('idorden', $order->id)->update([
-                'estado'    => 1,
-                'idorden'   => NULL
-            ]);
+            // Verificar si todos los productos están pagados
+            $pendingProducts = DetailOrder::where('idorden', $idorder)
+                ->where('estado_pago', false)
+                ->count();
+
+            if ($pendingProducts == 0) {
+                Order::where('id', $order->id)->update([
+                    'estado'            => 1,
+                    'idtipo_documento'  => $iddocumento_tipo,
+                    'idventa'           => $id_sale
+                ]);
+                Table::where('idorden', $order->id)->update([
+                    'estado'    => 1,
+                    'idorden'   => NULL
+                ]);
+            }
+
             DB::commit();
             event(new UpdateOrderEvent);
             event(new UpdateKitchenFinishEvent());
-
 
             echo json_encode([
                 'status'        => true,
@@ -1381,16 +1451,17 @@ class OrderController extends Controller
                 'pdf'           => $name . '.pdf',
                 'type_document' => $iddocumento_tipo
             ]);
-        } catch (Exception $th) {
+        } catch (Exception $e) {
             DB::rollBack();
-            echo json_encode([
-                'status'        => false,
-                'id'            => null,
-                'pdf'           => null,
-                'type_document' => null
+
+            return response()->json([
+                'status' => false,
+                'msg' => $e->getMessage(),
+                'type' => 'error'
             ]);
         }
     }
+
 
 
     public function kitchen_panel()
@@ -1732,7 +1803,7 @@ class OrderController extends Controller
         $data['modo_pago']          = PayMode::where('id', $factura->modo_pago)->first();
         $data['detalle']            = DetailSaleNote::select(
             'detail_sale_notes.*',
-            'products.descripcion as producto',
+            'products.nombre as producto',
             'products.codigo_interno as codigo_interno'
         )
             ->join('products', 'detail_sale_notes.idproducto', '=', 'products.id')

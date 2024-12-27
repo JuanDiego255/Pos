@@ -31,4 +31,9 @@ class Order extends Model
         'ticket_pre_cuenta',
         'note'
     ];
+
+    public function detailOrders()
+    {
+        return $this->hasMany(DetailOrder::class, 'idorden');
+    }
 }

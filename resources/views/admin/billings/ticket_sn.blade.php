@@ -2,6 +2,7 @@
 <html lang="en">
 @php
     $cantArticulos = 0;
+    $total_pagado = 0;
 @endphp
 
 <head>
@@ -195,9 +196,17 @@
         <div class="payments">
             <p style="font-size: 11px; margin-top:7px; font-weight: bold; margin-bottom: 0;">METODOS DE PAGO</p>
             @foreach ($payment_modes as $pay_mode)
+                @php
+                    $total_pagado += $pay_mode['monto'];
+                @endphp
                 <p style="font-size: 10px; margin-top:0; margin-bottom: 0;">{{ $pay_mode['modo_pago'] }}:
                     {{ $pay_mode['monto'] }}</p>
             @endforeach
+            @if ($total_pagado > $factura->total)
+                <p style="font-size: 11px; margin-top:7px; font-weight: bold; margin-bottom: 0;">CAMBIO</p>
+                <p style="font-size: 10px; margin-top:0; margin-bottom: 0;">Total:
+                    {{ $total_pagado - $factura->total }}</p>
+            @endif
         </div>
     @endif
 

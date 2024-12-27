@@ -311,16 +311,16 @@
                     toast_msg(r.msg, r.type);
                     return;
                 }
-
+                var total_cero = 0;
                 close_block('#layout-content');
 
                 $('#modalConfirmSale input[name="idorder"]').val(r.order.id);
-                $('#modalConfirmSale input[name="quantity_paying"]').val(parseFloat(r.order.total)
-                    .toFixed(2));
-                $('#modalConfirmSale #total_pay').text(parseFloat(r.order.total).toFixed(2));
-                $('#modalConfirmSale #total_paying').text(parseFloat(r.order.total).toFixed(2));
-                $('#modalConfirmSale #difference').text((parseFloat($('#total_pay').text() -
-                    parseFloat($('#total_paying').text()))).toFixed(2));
+                $('#modalConfirmSale input[name="quantity_paying"]').val(0);
+                /* $('#modalConfirmSale #total_pay').text(total_cero.toFixed(2));
+                $('#modalConfirmSale #total_paying').text(total_cero.toFixed(2));
+                $('#modalConfirmSale #difference').text(total_cero.toFixed(2)); */
+                /* $('#modalConfirmSale #difference').text((parseFloat($('#total_pay').text() -
+                    parseFloat($('#total_paying').text()))).toFixed(2)); */
                 $('#modalConfirmSale select[name="modo_pago"] option[value="1"]').prop('selected',
                     true);
                 $('#modalConfirmSale select[name="modo_pago_2"] option[value="2"]').prop('selected',
@@ -333,6 +333,20 @@
                 });
                 $('#modalConfirmSale select[name="dni_ruc"]').val(1).trigger('change');
                 load_serie();
+                // Populate products table
+                let productsTable = $('#products-table tbody');
+                productsTable.empty(); // Clear existing rows
+
+                r.products.forEach(product => {
+                    productsTable.append(`
+                    <tr>
+                        <td><input type="checkbox" name="selected_products[]" value="${product.id}"></td>
+                        <td>${product.name}</td>
+                        <td class="product-quantity">${product.quantity}</td>
+                        <td class="product-price">${parseFloat(product.price).toFixed(2)}</td>
+                    </tr>
+                `);
+                });
                 $('#modalConfirmSale').modal('show');
             },
             dataType: "json"
@@ -343,7 +357,15 @@
         let value = parseFloat($(this).val()),
             quantity_paying_2 = parseFloat($('input[name="quantity_paying_2"]').val()),
             quantity_paying_3 = parseFloat($('input[name="quantity_paying_3"]').val()),
-            total = parseFloat($('#total_pay').text());
+            total = 0;
+
+        $('#products-table tbody input[type="checkbox"]:checked').each(function() {
+            const row = $(this).closest('tr');
+            const price = parseFloat(row.find('.product-price').text()) || 0; // Obtener el precio
+            const quantity = parseFloat(row.find('.product-quantity').text()) ||
+                0; // Obtener la cantidad
+            total += price * quantity; // Calcular el subtotal y sumarlo
+        });
 
         if ($('input[name="quantity_paying"]').val() == "") {
             $('input[name="quantity_paying"]').val("0");
@@ -370,7 +392,15 @@
         let value = parseFloat($(this).val()),
             quantity_paying_2 = parseFloat($('input[name="quantity_paying"]').val()),
             quantity_paying_3 = parseFloat($('input[name="quantity_paying_3"]').val()),
-            total = parseFloat($('#total_pay').text());
+            total = 0;
+
+        $('#products-table tbody input[type="checkbox"]:checked').each(function() {
+            const row = $(this).closest('tr');
+            const price = parseFloat(row.find('.product-price').text()) || 0; // Obtener el precio
+            const quantity = parseFloat(row.find('.product-quantity').text()) ||
+                0; // Obtener la cantidad
+            total += price * quantity; // Calcular el subtotal y sumarlo
+        });
 
         if ($('input[name="quantity_paying_2"]').val() == "") {
             $('input[name="quantity_paying_2"]').val("0");
@@ -397,7 +427,15 @@
         let value = parseFloat($(this).val()),
             quantity_paying_2 = parseFloat($('input[name="quantity_paying"]').val()),
             quantity_paying_3 = parseFloat($('input[name="quantity_paying_2"]').val()),
-            total = parseFloat($('#total_pay').text());
+            total = 0;
+
+        $('#products-table tbody input[type="checkbox"]:checked').each(function() {
+            const row = $(this).closest('tr');
+            const price = parseFloat(row.find('.product-price').text()) || 0; // Obtener el precio
+            const quantity = parseFloat(row.find('.product-quantity').text()) ||
+                0; // Obtener la cantidad
+            total += price * quantity; // Calcular el subtotal y sumarlo
+        });
 
         if ($('input[name="quantity_paying_3"]').val() == "") {
             $('input[name="quantity_paying_3"]').val("0");
@@ -471,7 +509,19 @@
             "name": "difference",
             "value": $('#difference').text()
         };
-        console.log(form);
+        var selected_ids = "";
+        $('#products-table tbody input[type="checkbox"]:checked').each(function() {
+            const row = $(this).closest('tr');
+            const productId = $(this).val(); // ID del producto (del checkbox)
+            const quantity = parseFloat(row.find('.product-quantity').text()) || 0; // Cantidad
+            const price = parseFloat(row.find('.product-price').text()) || 0; // Precio
+
+            selected_ids += productId + ",";
+        });
+        form[form.length] = {
+            "name": "selected_ids",
+            "value": selected_ids
+        };
 
         $.ajax({
             url: "{{ route('admin.save_billing_order') }}",
@@ -487,7 +537,7 @@
                     $('.btn-confirm-pay').prop('disabled', false);
                     $('.text-confirm-pay').removeClass('d-none');
                     $('.text-confirm-payment').addClass('d-none');
-                    toast_msg(r.msg, r.type);
+                    console.log(r.msg, r.type);
                     return;
                 }
 
@@ -667,5 +717,51 @@
             },
             dataType: "json"
         });
+    });
+
+    // Función para actualizar los totales dinámicamente
+    function updateTotals() {
+        let totalPay = 0;
+        let total_cero = 0;
+
+        // Iterar sobre los productos seleccionados y calcular el subtotal por cantidad y precio
+        $('#products-table tbody input[type="checkbox"]:checked').each(function() {
+            const row = $(this).closest('tr');
+            const price = parseFloat(row.find('.product-price').text()) || 0; // Obtener el precio
+            const quantity = parseFloat(row.find('.product-quantity').text()) || 0; // Obtener la cantidad
+            totalPay += price * quantity; // Calcular el subtotal y sumarlo
+        });
+
+        // Actualizar el total en el modal
+        $('#modalConfirmSale #total_pay').text(totalPay.toFixed(2));
+
+        // Actualizar el campo "Pagando"
+        let quantity_paying_1 = parseFloat($('input[name="quantity_paying"]').val()),
+            quantity_paying_2 = parseFloat($('input[name="quantity_paying_2"]').val()),
+            quantity_paying_3 = parseFloat($('input[name="quantity_paying_3"]').val()),
+            total_paying = (quantity_paying_1 + quantity_paying_2 + quantity_paying_3).toFixed(2);
+
+        // Calcular y actualizar la diferencia
+        if (total_paying < totalPay || totalPay == 0) {
+            $('#total_paying').text(parseFloat(total_paying).toFixed(2));
+            $('#difference').text((parseFloat(total_paying) - totalPay).toFixed(2));
+            $('.wrapper_difference').removeClass('text-success');
+            $('.wrapper_difference').addClass('text-danger');
+            $('.btn-confirm-pay').prop('disabled', true);
+        } else {
+            $('#total_paying').text(parseFloat(total_paying).toFixed(2));
+            $('#difference').text((parseFloat(total_paying) - totalPay).toFixed(2));
+            $('.wrapper_difference').addClass('text-success');
+            $('.wrapper_difference').removeClass('text-danger');
+            $('.btn-confirm-pay').prop('disabled', false);
+        }
+    }
+
+    // Asignar el evento change a los checkboxes
+    $('body').on('change', '#products-table tbody input[type="checkbox"]', function() {
+        updateTotals();
+    });
+    $('body').on('shown.bs.modal', '#modalConfirmSale', function() {
+        updateTotals();
     });
 </script>

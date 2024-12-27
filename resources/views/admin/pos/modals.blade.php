@@ -79,6 +79,22 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="col-12 mt-4">
+                            <label for="products-table">Productos de la Orden:</label>
+                            <table id="products-table" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Seleccionar</th>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Filas dinámicas se insertarán aquí -->
+                                </tbody>
+                            </table>
+                        </div>
 
 
                         <div class="col-12 col-sm-7 col-md-12 col-lg-7">
@@ -105,7 +121,7 @@
                                                 <div class="el-input el-input--small">
                                                     <input type="text" autocomplete="off" max="Infinity"
                                                         min="0" class="form-control" role="spinbutton"
-                                                        name="quantity_paying">
+                                                        name="quantity_paying" value="0">
                                                 </div>
                                             </div>
                                         </div>

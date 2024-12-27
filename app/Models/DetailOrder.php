@@ -19,6 +19,12 @@ class DetailOrder extends Model
         'id_afectacion_igv',
         'precio_unitario',
         'precio_total',
-        'extras'
+        'extras',
+        'estado_pago'
     ];
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'idproducto');
+    }
 }

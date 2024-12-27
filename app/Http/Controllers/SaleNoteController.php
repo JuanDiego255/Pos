@@ -433,7 +433,7 @@ class SaleNoteController extends Controller
         $data['tipo_documento']     = IdentityDocumentType::where('id', $data['cliente']->iddoc)->first();
         $data['moneda']             = Currency::where('id', $factura->idmoneda)->first();
         $data['modo_pago']          = PayMode::where('id', $factura->modo_pago)->first();
-        $data['detalle']            = DetailSaleNote::select('detail_sale_notes.*', 'products.descripcion as producto', 
+        $data['detalle']            = DetailSaleNote::select('detail_sale_notes.*', 'products.nombre as producto', 
                                         'products.codigo_interno as codigo_interno')
                                         ->join('products', 'detail_sale_notes.idproducto', '=', 'products.id')
                                         ->where('idnotaventa', $factura->id)
