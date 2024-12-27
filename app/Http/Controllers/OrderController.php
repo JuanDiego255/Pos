@@ -1114,13 +1114,19 @@ class OrderController extends Controller
         return response()->json([
             'status' => true,
             'order' => $order,
-            'products' => $order->detailOrders->map(function ($detail) {
-                return [
-                    'id' => $detail->idproducto,
-                    'name' => $detail->product->nombre,
-                    'quantity' => $detail->cantidad,
-                    'price' => $detail->precio_total,
-                ];
+            'products' => $order->detailOrders->flatMap(function ($detail) {
+                // Calcular la cantidad restante por pagar
+                $cantidadRestante = $detail->cantidad - $detail->cant_pagada;
+
+                // Crear un arreglo con una entrada para cada unidad restante
+                return collect(range(1, $cantidadRestante))->map(function () use ($detail) {
+                    return [
+                        'id' => $detail->idproducto,
+                        'name' => $detail->product->nombre,
+                        'quantity' => 1, // Cada unidad pendiente de pago
+                        'price' => $detail->precio_unitario, // Precio por unidad
+                    ];
+                });
             })
         ]);
     }
@@ -1179,14 +1185,18 @@ class OrderController extends Controller
                 $product = DetailOrder::where('idorden', $idorder)
                     ->where('idproducto', $productId)
                     ->first();
-                if ($product) {
-                    // Calcular total por los productos seleccionados
-                    $total += $product->precio_total * $product->cantidad;
 
-                    // Actualizar estado del producto a pagado
-                    $product->update(['estado_pago' => true]);
+                if ($product) {
+                    $cant_pagada = $product->cant_pagada + 1;
+                    $total += $product->precio_unitario;
+                    $estadoPago = $cant_pagada >= $product->cantidad;
+                    $product->update([
+                        'cant_pagada' => $cant_pagada,
+                        'estado_pago' => $estadoPago
+                    ]);
                 }
             }
+
 
             if (empty($dni_ruc)) {
                 return response()->json([
@@ -1240,23 +1250,45 @@ class OrderController extends Controller
                         ->where('detail_orders.idproducto', $productId)
                         ->where('detail_orders.idorden', $idorder)
                         ->first();
-                    DetailSaleNote::insert([
-                        'idnotaventa' => $idfactura,
-                        'idproducto' => $product->idproducto,
-                        'descuento'             => 0.0000000000,
-                        'cantidad' => $product->cantidad,
-                        'igv'                   => $product["igv"],
-                        'id_afectacion_igv'     => $product['idcodigo_igv'],
-                        'precio_unitario' => $product->precio_unitario,
-                        'precio_total' => $product->precio_total
-                    ]);
 
-                    if ($product["stock"] != NULL) {
-                        Product::where('id', $product["idproducto"])->update([
-                            "stock"  => $product["stock"] - $product["cantidad"]
-                        ]);
+                    if ($product) {
+                        // Verificar si el producto ya está en la factura
+                        $existingDetail = DetailSaleNote::where('idnotaventa', $idfactura)
+                            ->where('idproducto', $product->idproducto)
+                            ->first();
+
+                        if ($existingDetail) {
+                            // Si existe, actualizar la cantidad y el precio_total
+                            $newQuantity = $existingDetail->cantidad + 1; // Incrementar la cantidad en 1
+                            $newTotalPrice = $existingDetail->precio_total + $product->precio_unitario; // Sumar el precio
+
+                            $existingDetail->update([
+                                'cantidad' => $newQuantity,
+                                'precio_total' => $newTotalPrice
+                            ]);
+                        } else {
+                            // Si no existe, insertar un nuevo registro
+                            DetailSaleNote::insert([
+                                'idnotaventa' => $idfactura,
+                                'idproducto' => $product->idproducto,
+                                'descuento' => 0.0000000000,
+                                'cantidad' => 1,
+                                'igv' => $product["igv"],
+                                'id_afectacion_igv' => $product['idcodigo_igv'],
+                                'precio_unitario' => $product->precio_unitario,
+                                'precio_total' => $product->precio_unitario // Precio por 1 unidad
+                            ]);
+                        }
+
+                        // Actualizar el stock del producto si corresponde
+                        if ($product["stock"] !== NULL) {
+                            Product::where('id', $product["idproducto"])->update([
+                                "stock" => $product["stock"] - 1 // Reducir el stock en 1
+                            ]);
+                        }
                     }
                 }
+
 
                 // Insert pay mode
                 if ($quantity_paying != "0.00") {
@@ -1365,7 +1397,7 @@ class OrderController extends Controller
                     DetailBilling::insert([
                         'idfacturacion' => $idfactura,
                         'idproducto' => $product->idproducto,
-                        'cantidad' => $product->cantidad,
+                        'cantidad' => 1,
                         'descuento'             => 0.0000000000,
                         'igv'                   => $product["igv"],
                         'id_afectacion_igv'     => $product['idcodigo_igv'],

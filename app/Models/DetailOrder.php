@@ -20,7 +20,8 @@ class DetailOrder extends Model
         'precio_unitario',
         'precio_total',
         'extras',
-        'estado_pago'
+        'estado_pago',
+        'cant_pagada'
     ];
 
     public function product()
