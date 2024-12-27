@@ -79,10 +79,10 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-12 mt-4">
+                        <div class="col-12 mt-3 mb-4">
                             <label for="products-table">Productos de la Orden:</label>
-                            <table id="products-table" class="table table-bordered">
-                                <thead>
+                            <table id="products-table" class="table table-sm">
+                                <thead class="table-light">
                                     <tr>
                                         <th>Seleccionar</th>
                                         <th>Producto</th>
@@ -97,7 +97,7 @@
                         </div>
 
 
-                        <div class="col-12 col-sm-7 col-md-12 col-lg-7">
+                        <div class="col-12 col-sm-7 col-md-12 col-lg-7 mt-3">
                             <div class="form-group"><label class="form-label">Forma de Pago</label>
                                 <div class="row mb-3 shadow-payment">
                                     <div class="col-6">
