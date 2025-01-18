@@ -70,15 +70,15 @@
                             </tr>`;
                 });
                 html_tbody += `<tr>
-                                <th colspan="9" class="text-end">Total S/ </th>
+                                <th colspan="9" class="text-end">Total ₡</th>
                                 <td class="text-center">${parseFloat(total).toFixed(2)}</td>
                             </tr>
                             <tr>
-                                <th colspan="9" class="text-end text-danger">Anulado S/ </th>
+                                <th colspan="9" class="text-end text-danger">Anulado ₡</th>
                                 <td class="text-center text-danger">${parseFloat(total_anulado).toFixed(2)}</td>
                             </tr>
                             <tr>
-                                <th colspan="9" class="text-end">Total Neto S/ </th>
+                                <th colspan="9" class="text-end">Total Neto ₡</th>
                                 <td class="text-center">${parseFloat(total - total_anulado).toFixed(2)}</td>
                             </tr>`;
                 $('#wrapper_tbody').html(html_tbody);

@@ -266,15 +266,15 @@
                 </td>
                 <td class="all-pay">
                     <div class="item">
-                        <div class="left">OP. GRAVADAS: S/.</div>
+                        <div class="left">OP. GRAVADAS </div>
                         <div class="right">{{ number_format(($buy->exonerada + $buy->gravada + $buy->inafecta), 2, '.', '') }}</div>
                     </div>
                     <div class="item">
-                        <div class="left">IGV: S/.</div>
+                        <div class="left">IGV </div>
                         <div class="right">{{ $buy->igv }}</div>
                     </div>
                     <div class="item bold">
-                        <div class="left">TOTAL A PAGAR: S/.</div>
+                        <div class="left">TOTAL A PAGAR </div>
                         <div class="right">{{ $buy->total }}</div>
                     </div>
                 </td>

@@ -116,22 +116,22 @@
             <tbody style="border-bottom: 1px solid #c2c2c2">
                 <tr>
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Exonerada:</td>
-                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">S/ {{ $factura->exonerada }}</td>
+                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">₡{{ $factura->exonerada }}</td>
                 </tr>
 
                 <tr>
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Gravada:</td>
-                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">S/ {{ $factura->gravada }}</td>
+                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">₡{{ $factura->gravada }}</td>
                 </tr>
 
                 <tr>
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Inafecta:</td>
-                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">S/ {{ $factura->inafecta }}</td>
+                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">₡{{ $factura->inafecta }}</td>
                 </tr>
 
                 <tr>
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">IGV:</td>
-                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">S/ {{ $factura->igv }}</td>
+                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">₡{{ $factura->igv }}</td>
                 </tr>
                 @if ($factura->otros_cargos)
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Envio:</td>
@@ -144,7 +144,7 @@
                 <tr>
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Importe Total:
                     </td>
-                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">S/ {{ $factura->total }}</td>
+                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">₡{{ $factura->total }}</td>
                 </tr>
             </tbody>
 

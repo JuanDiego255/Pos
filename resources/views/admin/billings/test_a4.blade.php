@@ -352,15 +352,15 @@
                 </td>
                 <td class="all-pay">
                     <div class="item">
-                        <div class="left">OP. GRAVADAS: S/.</div>
+                        <div class="left">OP. GRAVADAS </div>
                         <div class="right">34.75</div>
                     </div>
                     <div class="item">
-                        <div class="left">IGV: S/.</div>
+                        <div class="left">IGV </div>
                         <div class="right">34.75</div>
                     </div>
                     <div class="item bold">
-                        <div class="left">TOTAL A PAGAR: S/.</div>
+                        <div class="left">TOTAL A PAGAR </div>
                         <div class="right">34.75</div>
                     </div>
                 </td>

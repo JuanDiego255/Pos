@@ -70,7 +70,7 @@
                     <h1 class="price-toggle price-monthly display-4 text-primary mb-0 d-none">70</h1>
                     <sub class="h6 text-muted pricing-duration mt-auto mb-2 fw-normal">/mes</sub>
                   </div>
-                  <small class="price-yearly price-yearly-toggle text-muted">S/ 780.00 / a&ntilde;o</small>
+                  <small class="price-yearly price-yearly-toggle text-muted">₡780.00 / a&ntilde;o</small>
                 </div>
   
                 <ul class="ps-3 my-4 pt-2">
@@ -107,7 +107,7 @@
                     <h1 class="price-toggle price-monthly display-4 text-primary mb-0 d-none">80</h1>
                     <sub class="h6 pricing-duration mt-auto mb-2 fw-normal text-muted">/mes</sub>
                   </div>
-                  <small class="price-yearly price-yearly-toggle text-muted">S/ 900 / a&ntilde;o</small>
+                  <small class="price-yearly price-yearly-toggle text-muted">₡900 / a&ntilde;o</small>
                 </div>
   
                 <ul class="ps-3 my-4 pt-2">

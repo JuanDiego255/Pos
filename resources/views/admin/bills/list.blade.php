@@ -18,7 +18,7 @@
                                     <th>Fecha</th>
                                     <th>Cuenta</th>
                                     <th>Descripci&oacute;n</th>
-                                    <th>Total S/</th>
+                                    <th>Total ₡</th>
                                     <th>Usuario</th>
                                     <th width="10%">Acciones</th>
                                 </tr>

@@ -91,6 +91,7 @@
                     toast_msg(r.msg, r.title, r.type);
                     return;
                 }
+                console.log(r.cart_products);
 
                 $('#tbody_buys').html(r.html_cart);
                 $('#wrapper_totals').html(r.html_totales);

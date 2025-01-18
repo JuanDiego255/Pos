@@ -35,7 +35,7 @@
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label" for="monto">Monto</label>
                         <div class="input-group">
-                            <span class="input-group-text" id="basic-addon11">S/</span>
+                            <span class="input-group-text" id="basic-addon11">₡</span>
                             <input type="text" id="monto" class="form-control" name="monto">
                             <div class="invalid-feedback">El campo no debe estar vacío.</div>
                         </div>

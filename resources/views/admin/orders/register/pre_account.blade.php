@@ -94,7 +94,7 @@
                 <tr>
                     <td style="font-size: 11px; font-weight: bold; text-align: right;" colspan="2">Total:
                     </td>
-                    <td style="font-size: 11px; font-weight: bold; text-align: right;" colspan="1">S/ {{ $order->total }}</td>
+                    <td style="font-size: 11px; font-weight: bold; text-align: right;" colspan="1">₡{{ $order->total }}</td>
                 </tr>
             </tbody>
         </table>

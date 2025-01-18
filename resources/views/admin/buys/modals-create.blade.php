@@ -17,7 +17,7 @@
                             <option value=""></option>
                             @foreach ($products as $product)
                                 <option value="{{ $product->id }}">
-                                    {{ $product->descripcion . ' - S/' . $product->precio_compra }}</option>
+                                    {{ $product->descripcion . ' - ₡' . $product->precio_compra }}</option>
                             @endforeach
                         </select>
                         <div class="invalid-feedback">El campo no debe estar vacío.</div>

@@ -61,7 +61,7 @@
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label" for="precio_compra">Precio Compra</label>
                         <div class="input-group">
-                            <span class="input-group-text" id="basic-addon11">{{ $moneda_pais }}</span>
+                            <span class="input-group-text" id="basic-addon11">{{ '' }}</span>
                             <input type="text" id="precio_compra" class="form-control" name="precio_compra" value="0.00">
                             <div class="invalid-feedback">El campo no debe estar vacío.</div>
                         </div>
@@ -70,7 +70,7 @@
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label" for="precio_venta">Precio Venta</label>
                         <div class="input-group">
-                            <span class="input-group-text" id="basic-addon11">{{ $moneda_pais }}</span>
+                            <span class="input-group-text" id="basic-addon11">{{ '' }}</span>
                             <input type="text" id="precio_venta" class="form-control" name="precio_venta">
                             <div class="invalid-feedback">El campo no debe estar vacío.</div>
                         </div>

@@ -146,15 +146,15 @@
                     </tr>
                 @endforeach
                 <tr>
-                    <td colspan="10" class="text-right border-solid">Total S/ &nbsp;</td>
+                    <td colspan="10" class="text-right border-solid">Total ₡&nbsp;</td>
                     <td class="td_items border-solid">{{ number_format($total, 2, '.', '') }}</td>
                 </tr>
                 <tr>
-                    <td colspan="10" class="text-right border-solid text-danger">Anulado S/ &nbsp;</td>
+                    <td colspan="10" class="text-right border-solid text-danger">Anulado ₡&nbsp;</td>
                     <td class="td_items border-solid text-danger">{{ number_format($anulado, 2, '.', '') }}</td>
                 </tr>
                 <tr>
-                    <td colspan="10" class="text-right border-solid">Total Neto S/ &nbsp;</td>
+                    <td colspan="10" class="text-right border-solid">Total Neto ₡&nbsp;</td>
                     <td class="td_items border-solid">{{ number_format($total_neto, 2, '.', '') }}</td>
                 </tr>
             </tbody>

@@ -115,22 +115,22 @@
             <tbody style="border-bottom: 1px solid #c2c2c2">
                 <tr>
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Exonerada:</td>
-                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">S/ 20.00</td>
+                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">₡20.00</td>
                 </tr>
 
                 <tr>
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Gravada:</td>
-                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">S/ 0.00</td>
+                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">₡0.00</td>
                 </tr>
 
                 <tr>
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Inafecta:</td>
-                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">S/ 0.00</td>
+                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">₡0.00</td>
                 </tr>
 
                 <tr>
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">IGV:</td>
-                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">S/ 0.00</td>
+                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">₡0.00</td>
                 </tr>
             </tbody>
 
@@ -138,7 +138,7 @@
                 <tr>
                     <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">Importe Total:
                     </td>
-                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">S/ 0.00</td>
+                    <td style="font-size: 12px; font-weight: bold; text-align: right;" colspan="2">₡0.00</td>
                 </tr>
             </tbody>
 

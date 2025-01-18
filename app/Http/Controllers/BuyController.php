@@ -94,7 +94,7 @@ class BuyController extends Controller
         $data['type_documents_p']   = TypeDocument::where('estado', 1)->limit(2)->get();
         $data['type_documents']     = IdentityDocumentType::where('estado', 1)->get();
         $data['modo_pagos']         = PayMode::get();
-        $data['providers']          = Provider::where('iddoc', 4)->get();
+        $data['providers']          = Provider::get();
         $data['products']           = Product::where('stock', '!=', NULL)->get();
         $data["units"]              = Unit::where('estado', 1)->get();
         $data['type_inafects']      = IgvTypeAffection::where('estado', 1)->get();
@@ -187,16 +187,16 @@ class BuyController extends Controller
 
         $html_totales   .= '<div class="d-flex justify-content-between mb-2">
                                         <span class="w-px-100">OP. Gravadas:</span>
-                                        <span class="fw-medium">S/' . number_format(($cart['exonerada'] + $cart['gravada'] + $cart['inafecta']), 2, ".", "") . '</span>
+                                        <span class="fw-medium">₡' . number_format(($cart['exonerada'] + $cart['gravada'] + $cart['inafecta']), 2, ".", "") . '</span>
                                     </div>
                                     <div class="d-flex justify-content-between mb-2">
                                         <span class="w-px-100">IGV:</span>
-                                        <span class="fw-medium">S/' . number_format($cart['igv'], 2, ".", "") . '</span>
+                                        <span class="fw-medium">₡' . number_format($cart['igv'], 2, ".", "") . '</span>
                                     </div>
                                     <hr>
                                     <div class="d-flex justify-content-between">
                                         <span class="w-px-100">Total:</span>
-                                        <span class="fw-medium">S/' . number_format($cart['total'], 2, ".", "") . '</span>
+                                        <span class="fw-medium">₡' . number_format($cart['total'], 2, ".", "") . '</span>
                             </div>';
 
         echo json_encode([
@@ -585,21 +585,21 @@ class BuyController extends Controller
 
         foreach (session('buy')['products'] as $index => $product) {
             if ($product['impuesto'] == 1) {
-                $igv        +=  number_format((((float) $product['precio_compra'] - (float) $product['precio_compra'] / 1.18) * (int) $product['cantidad']), 2, ".", "");
+                $igv        +=  number_format((((float) $product['precio_compra'] - (float) $product['precio_compra']) * (int) $product['cantidad']), 2, ".", "");
                 $igv        = $this->redondeado($igv);
             }
 
-            if ($product["codigo_igv"] == "10") {
-                $gravada    += number_format((((float) $product['precio_compra'] / 1.18) * (int) $product['cantidad']), 2, ".", "");
+            if ($product["idcodigo_igv"] == "10") {
+                $gravada    += number_format((((float) $product['precio_compra']) * (int) $product['cantidad']), 2, ".", "");
                 $gravada     = $this->redondeado($gravada);
             }
 
-            if ($product["codigo_igv"] == "20") {
+            if ($product["idcodigo_igv"] == "20") {
                 $exonerada   += number_format(((float) $product['precio_compra'] * (int) $product['cantidad']), 2, ".", "");
                 $exonerada   = $this->redondeado($exonerada);
             }
 
-            if ($product["codigo_igv"] == "30") {
+            if ($product["idcodigo_igv"] == "30") {
                 $inafecta    += number_format(((float) $product['precio_compra'] * (int) $product['cantidad']), 2, ".", "");
                 $inafecta     = str_replace(',', '', $inafecta);
                 $inafecta     = $this->redondeado($inafecta);
@@ -632,13 +632,8 @@ class BuyController extends Controller
     public function add_product_cart($id, $cantidad, $precio)
     {
         $product        = Product::select(
-            'products.*',
-            'units.codigo as unidad',
-            'igv_type_affections.descripcion as tipo_afecto',
-            'igv_type_affections.codigo as codigo_igv'
+            'products.*'
         )
-            ->join('units', 'products.idunidad', '=', 'units.id')
-            ->join('igv_type_affections', 'products.idcodigo_igv', 'igv_type_affections.id')
             ->where('products.id', $id)
             ->first();
 

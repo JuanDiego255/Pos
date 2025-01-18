@@ -1,20 +1,16 @@
 <!DOCTYPE html>
 @php
-  $user = auth()->user();
-  $role = $user->roles->first()->name ?? 'Sin rol asignado';
+    $user = auth()->user();
+    $role = $user->roles->first()->name ?? 'Sin rol asignado';
 @endphp
-<html
-  lang="es"
-  class="light-style layout-navbar-fixed layout-menu-fixed {{ request()->is('billings') || request()->is('credit-notes') || request()->is('sales-general') || request()->is('sales-seller') || request()->is('purchases-general') || request()->is('purchases-provider') || request()->is('purchases-expenses') || request()->is('inventories-items') || request()->is('prices') || request()->routeIs('admin.register_order') || request()->is('orders') || request()->is('create-order') || request()->is('kitchen-orders') || ($role == "COCINA") ? 'layout-menu-collapsed' : '' }}"
-  dir="ltr"
-  data-theme="theme-semi-dark"
-  data-assets-path="assets/"
-  data-template="vertical-menu-template-semi-dark">
-  <head>
+<html lang="es"
+    class="light-style layout-navbar-fixed layout-menu-fixed {{ request()->is('billings') || request()->is('credit-notes') || request()->is('sales-general') || request()->is('sales-seller') || request()->is('purchases-general') || request()->is('purchases-provider') || request()->is('purchases-expenses') || request()->is('inventories-items') || request()->is('prices') || request()->routeIs('admin.register_order') || request()->is('orders') || request()->is('create-order') || request()->is('kitchen-orders') || $role == 'COCINA' ? 'layout-menu-collapsed' : '' }}"
+    dir="ltr" data-theme="theme-semi-dark" data-assets-path="assets/" data-template="vertical-menu-template-semi-dark">
+
+<head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
     <title>Facturaci&oacute;n Electr&oacute;nica</title>
 
@@ -26,8 +22,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
-      rel="stylesheet" />
+        href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+        rel="stylesheet" />
 
     <!-- Icons -->
     <link rel="stylesheet" href="{{ asset('assets/vendor/fonts/fontawesome.css') }}" />
@@ -45,15 +41,18 @@
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/typeahead-js/typeahead.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/apex-charts/apex-charts.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css') }}">
+    <link rel="stylesheet"
+        href="{{ asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css') }}" />
+    <link rel="stylesheet"
+        href="{{ asset('assets/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/pnotify/pnotify.custom.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/sweetalert2/sweetalert2.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/spinkit/spinkit.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/select2/select2.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/vendor/css/rtl/theme-default.css') }}" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/css/rtl/theme-default.css') }}"
+        class="template-customizer-theme-css" />
     @yield('styles')
 
     <script src="{{ asset('assets/vendor/js/template-customizer.js') }}"></script>
@@ -67,9 +66,9 @@
     <!--? Template customizer: To hide customizer set displayCustomizer value false in config.js.  -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="{{ asset('assets/js/config.js') }}"></script>
-  </head>
+</head>
 
-  <body>
+<body>
     <div id="ID-load" class="ID-load">
         <div>
             <div>
@@ -92,7 +91,7 @@
                             d="M170.7 288H459.2c32.6 0 61.1-21.8 69.5-53.3l41-152.3C576.6 57 557.4 32 531.1 32h-411c2 4.2 3.5 8.8 4.4 13.5L170.7 288z" />
                     </svg>
                 </div>
-    
+
                 <div class="id-load-icon id-register">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                         <path class="fa-primary"
@@ -109,7 +108,7 @@
                             d="M192 224c-17.7 0-32 14.3-32 32V448c0 17.7 14.3 32 32 32s32-14.3 32-32V256c0-17.7-14.3-32-32-32zM64 320c-17.7 0-32 14.3-32 32v96c0 17.7 14.3 32 32 32s32-14.3 32-32V352c0-17.7-14.3-32-32-32zm224 0V448c0 17.7 14.3 32 32 32s32-14.3 32-32V320c0-17.7-14.3-32-32-32s-32 14.3-32 32zm160-96c-17.7 0-32 14.3-32 32V448c0 17.7 14.3 32 32 32s32-14.3 32-32V256c0-17.7-14.3-32-32-32z" />
                     </svg>
                 </div>
-    
+
                 <div class="id-load-icon id-sale">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                         <path class="fa-primary"
@@ -129,641 +128,676 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Layout wrapper -->
     <div id="layout-content" class="layout-wrapper layout-content-navbar">
-      <div class="layout-container">
+        <div class="layout-container">
 
-        
-        <!-- Menu -->
-        @if ($role != "COCINA")
-        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-          <div class="app-brand demo">
-            <a href="{{ route('admin.home') }}" class="app-brand-link">
-                {{-- <span class="app-brand-logo demo">
+
+            <!-- Menu -->
+            @if ($role != 'COCINA')
+                <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+                    <div class="app-brand demo">
+                        <a href="{{ route('admin.home') }}" class="app-brand-link">
+                            {{-- <span class="app-brand-logo demo">
                     <img src="{{ asset('assets/img/icons/icon-login.svg') }}" alt=""
                         class="img-fluid">
                 </span> --}}
-              <span class="app-brand-text demo menu-text fw-bold">Esquina de Floro</span>
-            </a>
+                            <span class="app-brand-text demo menu-text fw-bold">Esquina de Floro</span>
+                        </a>
 
-            <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
-              <i class="ti menu-toggle-icon d-none d-xl-block ti-sm align-middle"></i>
-              <i class="ti ti-x d-block d-xl-none ti-sm align-middle"></i>
-            </a>
-          </div>
-
-          <div class="menu-inner-shadow"></div>
-
-          <ul class="menu-inner py-1">
-            <!-- Dashboards -->
-            <!-- Layouts -->
-
-            <!-- Apps & Pages -->
-            <li class="menu-header small text-uppercase">
-              <span class="menu-header-text">MENU</span>
-            </li>
-            <li class="menu-item {{ request()->is('home') ? 'active' : '' }}">
-              <a href="{{ route('admin.home') }}" class="menu-link">
-                <i class="menu-icon" data-feather="bar-chart"></i>
-                <div data-i18n="Principal"> Principal</div>
-              </a>
-            </li>
-            @can('admin.cashes')
-            <li class="menu-item {{ request()->is('cashes') ? 'active' : '' }}">
-              <a href="{{ route('admin.cashes') }}" class="menu-link">
-                <i class="menu-icon" data-feather="credit-card"></i>
-                <div data-i18n="Administrar Cajas">Administrar Cajas</div>
-              </a>
-            </li>
-            @endcan
-            {{-- @can('admin.alerts_stock', 'admin.alerts_expiration', 'admin.alerts_sale')
-            <li class="menu-item {{ request()->is('alerts-stock') || request()->is('alerts-expiration') || request()->is('alerts-sale')  ? 'active open' : '' }}">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon" data-feather="bell"></i>
-                <div data-i18n="Alertas">Alertas</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item {{ request()->is('alerts-sale') ? 'active' : '' }}">
-                  <a href="{{ route('admin.alerts_sale') }}" class="menu-link">
-                    <div data-i18n="Pendientes SUNAT">Pendientes SUNAT</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ request()->is('alerts-stock') ? 'active' : '' }}">
-                  <a href="{{ route('admin.alerts_stock') }}" class="menu-link">
-                    <div data-i18n="Productos por Agotar">Productos por Agotar</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ request()->is('alerts-expiration') ? 'active' : '' }}">
-                  <a href="{{ route('admin.alerts_expiration') }}" class="menu-link">
-                    <div data-i18n="Productos por Vencer">Productos por Vencer</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
-            @endcan --}}
-
-            @can('admin.orders', 'admin.create_order')
-            <li class="menu-item {{ request()->is('orders') || request()->is('create-order') || request()->routeIs('admin.register_order') || request()->is('kitchen-orders') ?  'active open' : '' }}">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon" data-feather="file-plus"></i>
-                <div data-i18n="Pedidos">Pedidos</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item {{ request()->is('create-order') || request()->routeIs('admin.register_order') ? 'active' : '' }}">
-                  <a href="{{ route('admin.create_order') }}" class="menu-link">
-                    <div data-i18n="Nuevo Pedido">Nuevo Pedido</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ request()->is('orders') ? 'active' : '' }}">
-                  <a href="{{ route('admin.orders') }}" class="menu-link">
-                    <div data-i18n="Lista de Pedidos">Lista de Pedidos</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ request()->is('kitchen-orders') ? 'active' : '' }}">
-                  <a href="{{ route('admin.kitchen_panel') }}" class="menu-link">
-                    <div data-i18n="Panel de Cocina">Panel de Cocina</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
-            @endcan
-
-            @can('admin.billings', 'admin.credit_notes', 'admin.sale_notes', 'admin.quotes')
-            <li class="menu-item {{ request()->is('quotes') || request()->is('create-quote')  || request()->is('sale-notes') || request()->is('create-sale-note') || request()->is('billings') || request()->is('credit-notes') || request()->routeIs('admin.create_nc') || request()->routeIs('admin.edit_quote') ? 'active open' : '' }}">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon" data-feather="file-text"></i>
-                <div data-i18n="Ventas">Ventas</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item {{ request()->is('billings') || request()->routeIs('admin.create_nc') ? 'active' : '' }}">
-                  <a href="{{ route('admin.billings') }}" class="menu-link">
-                    <div data-i18n="Lista de Ventas">Lista de Ventas</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ request()->is('credit-notes') ? 'active' : '' }}">
-                  <a href="{{ route('admin.credit_notes') }}" class="menu-link">
-                    <div data-i18n="Notas de Crédito">Notas de Crédito</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ request()->is('sale-notes') || request()->is('create-sale-note') ? 'active' : '' }}">
-                  <a href="{{ route('admin.sale_notes') }}" class="menu-link">
-                    <div data-i18n="Notas de Venta">Notas de Venta</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ request()->is('quotes') || request()->is('create-quote') || request()->routeIs('admin.edit_quote') ? 'active' : '' }}">
-                  <a href="{{ route('admin.quotes') }}" class="menu-link">
-                    <div data-i18n="Cotizaciones">Cotizaciones</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
-            @endcan
-            {{-- @can('admin.buys', 'admin.create_buy', 'admin.bills')
-            <li class="menu-item {{ request()->is('bills') || request()->is('buys') || request()->is('create-buy') ? 'active open' : '' }}">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon" data-feather="shopping-cart"></i>
-                <div data-i18n="Compras">Compras</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item {{ request()->is('create-buy') ? 'active' : '' }}">
-                  <a href="{{ route('admin.create_buy') }}" class="menu-link">
-                    <div data-i18n="Compra de Mercadería">Compra de Mercadería</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ request()->is('buys') ? 'active' : '' }}">
-                  <a href="{{ route('admin.buys') }}" class="menu-link">
-                    <div data-i18n="Lista de Compras">Lista de Compras</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ request()->is('bills') ? 'active' : '' }}">
-                  <a href="{{ route('admin.bills') }}" class="menu-link">
-                    <div data-i18n="Gastos">Gastos</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
-            @endcan --}}
-            
-            @can('admin.products')
-            <li class="menu-item {{ request()->is('products') ? 'active open' : '' }}">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon" data-feather="package"></i>
-                <div data-i18n="Inventario">Inventario</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item {{ request()->is('products') ? 'active' : '' }}">
-                  <a href="{{ route('admin.products') }}" class="menu-link">
-                    <div data-i18n="Productos">Productos</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
-            @endcan
-            @can('admin.pos')
-            <li class="menu-item">
-              <a href="{{ route('admin.pos') }}" class="menu-link window-open-pos" data-iduser="{{ Auth::user()['id'] }}" data-idcash="{{ Auth::user()['idcaja'] }}">
-                <i class="menu-icon" data-feather="shopping-bag"></i>
-                <div data-i18n="Venta rapida POS">Venta rapida POS</div>
-              </a>
-            </li>
-            @endcan
-
-            @can('admin.clients', 'admin.providers')
-            <li class="menu-item {{ request()->is('roles') || request()->is('clients') || request()->is('providers') || request()->is('users') || request()->routeIs('admin.view_role') ? 'active open' : '' }}">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon" data-feather="users"></i>
-                <div data-i18n="Contactos">Contactos</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item {{ request()->is('clients') ? 'active' : '' }}">
-                  <a href="{{ route('admin.clients') }}" class="menu-link">
-                    <div data-i18n="Clientes">Clientes</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ request()->is('providers') ? 'active' : '' }}">
-                  <a href="{{ route('admin.providers') }}" class="menu-link">
-                    <div data-i18n="Proveedores">Proveedores</div>
-                  </a>
-                </li>
-                @can('admin.users', 'admin.roles')
-                <li class="menu-item {{ request()->is('users') || request()->routeIs('admin.view_role') ? 'active' : '' }}">
-                  <a href="{{ route('admin.users') }}" class="menu-link">
-                    <div data-i18n="Usuarios">Usuarios</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ request()->is('roles') ? 'active' : '' }}">
-                  <a href="{{ route('admin.roles') }}" class="menu-link">
-                    <div data-i18n="Roles">Roles</div>
-                  </a>
-                </li>
-                @endcan
-              </ul>
-            </li>
-            @endcan
-            <!-- Extended components -->
-            @can('admin.sales_general', 'admin.sales_seller', 'admin.purchases_general', 'admin.purchases_provider', 'admin.purchases_expenses', 'admin.contact_customers', 'admin.contact_providers', 'admin.inventory_products')
-            <li class="menu-item {{ request()->is('inventories-items') || request()->is('contacts-customers') || request()->is('contacts-providers') || request()->is('purchases-expenses') || request()->is('purchases-provider') || request()->is('purchases-general') || request()->is('sales-general') || request()->is('sales-seller') || request()->is('sales-product') ? 'active open' : '' }}">
-              <a href="javascript:void(0)" class="menu-link menu-toggle">
-                <i class="menu-icon" data-feather="calendar"></i>
-                <div data-i18n="Reportes">Reportes</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item {{ request()->is('sales-general') || request()->is('sales-seller') || request()->is('sales-product') ? 'open active' : '' }}">
-                  <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <div data-i18n="Ventas">Ventas</div>
-                  </a>
-                  <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('sales-general') ? 'active' : '' }}">
-                      <a href="{{ route('admin.sales_general') }}" class="menu-link">
-                        <div data-i18n="Ventas General">Ventas General</div>
-                      </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('sales-seller') ? 'active' : '' }}">
-                      <a href="{{ route('admin.sales_seller') }}" class="menu-link">
-                        <div data-i18n="Ventas por Vendedor">Ventas por Vendedor</div>
-                      </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('sales-product') ? 'active' : '' }}">
-                      <a href="{{ route('admin.sales_product') }}" class="menu-link">
-                        <div data-i18n="Prod. más Vendidos">Prod. más Vendidos</div>
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-                
-                <li class="menu-item {{ request()->is('purchases-expenses') || request()->is('purchases-provider') || request()->is('purchases-general') ? 'open active' : '' }}">
-                  <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <div data-i18n="Compras">Compras</div>
-                  </a>
-                  <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('purchases-general') ? 'active' : '' }}">
-                      <a href="{{  route('admin.purchases_general')  }}" class="menu-link">
-                        <div data-i18n="Compras General">Compras General</div>
-                      </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('purchases-provider') ? 'active' : '' }}">
-                      <a href="{{ route('admin.purchases_provider') }}" class="menu-link">
-                        <div data-i18n="Compras Proveedor">Compras Proveedor</div>
-                      </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('purchases-expenses') ? 'active' : '' }}">
-                      <a href="{{ route('admin.purchases_expenses') }}" class="menu-link">
-                        <div data-i18n="Gastos">Gastos</div>
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-                
-                <li class="menu-item {{ request()->is('contacts-customers') || request()->is('contacts-providers') ? 'open active' : '' }}">
-                  <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <div data-i18n="Contactos">Contactos</div>
-                  </a>
-                  <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('contacts-customers') ? 'active' : '' }}">
-                      <a href="{{ route('admin.contact_customers') }}" class="menu-link">
-                        <div data-i18n="Clientes">Clientes</div>
-                      </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('contacts-providers') ? 'active' : '' }}">
-                      <a href="{{ route('admin.contact_providers') }}" class="menu-link">
-                        <div data-i18n="Proveedores">Proveedores</div>
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-                <li class="menu-item {{ request()->is('inventories-items') ? 'open active' : '' }}">
-                  <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <div data-i18n="Inventario">Inventario</div>
-                  </a>
-                  <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('inventories-items') ? 'active' : '' }}">
-                      <a href="{{ route('admin.inventory_products') }}" class="menu-link">
-                        <div data-i18n="Productos">Productos</div>
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-            @endcan
-
-            @can('admin.series', 'admin.rooms', 'admin.tables', 'admin.list_cashes')
-            <li class="menu-item {{ request()->is('list-cashes') || request()->is('series') || request()->is('business') || request()->is('rooms') || request()->is('tables') || request()->is('countries') ? 'active open' : '' }}">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon" data-feather="settings"></i>
-                <div data-i18n="Configuración">Configuración</div>
-              </a>
-              <ul class="menu-sub">
-                @can('admin.business')
-                <li class="menu-item {{ request()->is('business') ? 'active' : '' }}">
-                  <a href="{{ route('admin.business') }}" class="menu-link">
-                    <div data-i18n="Empresa">Empresa</div>
-                  </a>
-                </li>
-                @endcan
-                <li class="menu-item {{ request()->is('rooms') ? 'active' : '' }}">
-                  <a href="{{ route('admin.rooms') }}" class="menu-link">
-                    <div data-i18n="Salas">Salas</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ request()->is('tables') ? 'active' : '' }}">
-                  <a href="{{ route('admin.tables') }}" class="menu-link">
-                    <div data-i18n="Mesas">Mesas</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ request()->is('series') ? 'active' : '' }}">
-                  <a href="{{ route('admin.series') }}" class="menu-link">
-                    <div data-i18n="Series">Series</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ request()->is('list-cashes') ? 'active' : '' }}">
-                  <a href="{{ route('admin.list_cashes') }}" class="menu-link">
-                    <div data-i18n="Cajas">Cajas</div>
-                  </a>
-                </li>
-
-                <li class="menu-item {{ request()->is('countries') ? 'active' : '' }}">
-                  <a href="{{ route('admin.countries') }}" class="menu-link">
-                    <div data-i18n="Paises">Paises</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
-            @endcan
-          </ul>
-        </aside>
-        <!-- / Menu -->
-        @endif
-
-
-        <!-- Layout container -->
-        <div class="layout-page">
-
-          <!-- Navbar -->
-          <nav
-            class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
-            id="layout-navbar">
-            <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
-              <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
-                <i class="ti ti-menu-2 ti-sm"></i>
-              </a>
-            </div>
-
-            <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-              <!-- Search -->
-              <div class="navbar-nav align-items-center">
-                <div class="nav-item navbar-search-wrapper mb-0">
-                  <a class="nav-item nav-link search-toggler d-flex align-items-center px-0" href="javascript:void(0);"></a>
-                </div>
-              </div>
-              <!-- /Search -->
-
-              <ul class="navbar-nav flex-row align-items-center ms-auto">
-                <!-- Style Switcher -->
-                <li class="nav-item me-2 me-xl-0">
-                  <a class="nav-link style-switcher-toggle hide-arrow" href="javascript:void(0);">
-                    <i class="ti ti-md"></i>
-                  </a>
-                </li>
-                <!--/ Style Switcher -->
-
-                <!-- Quick links  -->
-                @if ($role != "COCINA")
-                <li class="nav-item dropdown-shortcuts navbar-dropdown dropdown me-2 me-xl-0">
-                  <a
-                    class="nav-link dropdown-toggle hide-arrow"
-                    href="javascript:void(0);"
-                    data-bs-toggle="dropdown"
-                    data-bs-auto-close="outside"
-                    aria-expanded="false">
-                    <i class="ti ti-layout-grid-add ti-md"></i>
-                  </a>
-                  <div class="dropdown-menu dropdown-menu-end py-0">
-                    <div class="dropdown-menu-header border-bottom">
-                      <div class="dropdown-header d-flex align-items-center py-3">
-                        <h5 class="text-body mb-0 me-auto">Atajos</h5>
-                      </div>
+                        <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
+                            <i class="ti menu-toggle-icon d-none d-xl-block ti-sm align-middle"></i>
+                            <i class="ti ti-x d-block d-xl-none ti-sm align-middle"></i>
+                        </a>
                     </div>
-                    <div class="dropdown-shortcuts-list scrollable-container">
-                      <div class="row row-bordered overflow-visible g-0">
-                        <div class="dropdown-shortcuts-item col">
-                          <span class="dropdown-shortcuts-icon rounded-circle mb-2">
-                            <i class="ti ti-file-invoice fs-4"></i>
-                          </span>
-                          <a href="{{ route('admin.pos') }}" class="stretched-link  window-open-pos" data-iduser="{{ Auth::user()['id'] }}" data-idcash="{{ Auth::user()['idcaja'] }}">Facturaci&oacute;n</a>
-                          <small class="text-muted mb-0">Abrir Terminal POS</small>
-                        </div>
-                        <div class="dropdown-shortcuts-item col">
-                          <span class="dropdown-shortcuts-icon rounded-circle mb-2">
-                            <i class="ti ti-users fs-4"></i>
-                          </span>
-                          <a href="{{ route('admin.clients') }}" class="stretched-link">Contactos</a>
-                          <small class="text-muted mb-0">Gesti&oacute;n de Clientes</small>
-                        </div>
-                      </div>
-                      <div class="row row-bordered overflow-visible g-0">
-                        <div class="dropdown-shortcuts-item col">
-                          <span class="dropdown-shortcuts-icon rounded-circle mb-2">
-                            <i class="ti ti-chart-bar fs-4"></i>
-                          </span>
-                          <a href="{{ route('admin.home') }}" class="stretched-link">Dashboard</a>
-                          <small class="text-muted mb-0">Panel Principal</small>
-                        </div>
-                        <div class="dropdown-shortcuts-item col">
-                          <span class="dropdown-shortcuts-icon rounded-circle mb-2">
-                            <i class="ti ti-settings fs-4"></i>
-                          </span>
-                          <a href="{{ route('admin.business') }}" class="stretched-link">Configuraci&oacute;n</a>
-                          <small class="text-muted mb-0">Empresa</small>
-                        </div>
-                      </div>
+
+                    <div class="menu-inner-shadow"></div>
+
+                    <ul class="menu-inner py-1">
+                        <!-- Dashboards -->
+                        <!-- Layouts -->
+
+                        <!-- Apps & Pages -->
+                        <li class="menu-header small text-uppercase">
+                            <span class="menu-header-text">MENU</span>
+                        </li>
+                        <li class="menu-item {{ request()->is('home') ? 'active' : '' }}">
+                            <a href="{{ route('admin.home') }}" class="menu-link">
+                                <i class="menu-icon" data-feather="bar-chart"></i>
+                                <div data-i18n="Principal"> Principal</div>
+                            </a>
+                        </li>
+                        @can('admin.cashes')
+                            <li class="menu-item {{ request()->is('cashes') ? 'active' : '' }}">
+                                <a href="{{ route('admin.cashes') }}" class="menu-link">
+                                    <i class="menu-icon" data-feather="credit-card"></i>
+                                    <div data-i18n="Administrar Cajas">Administrar Cajas</div>
+                                </a>
+                            </li>
+                        @endcan
+                        {{-- @can('admin.alerts_stock', 'admin.alerts_expiration', 'admin.alerts_sale')
+                            <li
+                                class="menu-item {{ request()->is('alerts-stock') || request()->is('alerts-expiration') || request()->is('alerts-sale') ? 'active open' : '' }}">
+                                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                    <i class="menu-icon" data-feather="bell"></i>
+                                    <div data-i18n="Alertas">Alertas</div>
+                                </a>
+                                <ul class="menu-sub">
+                                    <li class="menu-item {{ request()->is('alerts-sale') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.alerts_sale') }}" class="menu-link">
+                                            <div data-i18n="Pendientes SUNAT">Pendientes SUNAT</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item {{ request()->is('alerts-stock') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.alerts_stock') }}" class="menu-link">
+                                            <div data-i18n="Productos por Agotar">Productos por Agotar</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item {{ request()->is('alerts-expiration') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.alerts_expiration') }}" class="menu-link">
+                                            <div data-i18n="Productos por Vencer">Productos por Vencer</div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endcan --}}
+
+                        @can('admin.orders', 'admin.create_order')
+                            <li
+                                class="menu-item {{ request()->is('orders') || request()->is('create-order') || request()->routeIs('admin.register_order') || request()->is('kitchen-orders') ? 'active open' : '' }}">
+                                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                    <i class="menu-icon" data-feather="file-plus"></i>
+                                    <div data-i18n="Pedidos">Pedidos</div>
+                                </a>
+                                <ul class="menu-sub">
+                                    <li
+                                        class="menu-item {{ request()->is('create-order') || request()->routeIs('admin.register_order') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.create_order') }}" class="menu-link">
+                                            <div data-i18n="Nuevo Pedido">Nuevo Pedido</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item {{ request()->is('orders') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.orders') }}" class="menu-link">
+                                            <div data-i18n="Lista de Pedidos">Lista de Pedidos</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item {{ request()->is('kitchen-orders') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.kitchen_panel') }}" class="menu-link">
+                                            <div data-i18n="Panel de Cocina">Panel de Cocina</div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endcan
+
+                        @can('admin.billings', 'admin.credit_notes', 'admin.sale_notes', 'admin.quotes')
+                            <li
+                                class="menu-item {{ request()->is('quotes') || request()->is('create-quote') || request()->is('sale-notes') || request()->is('create-sale-note') || request()->is('billings') || request()->is('credit-notes') || request()->routeIs('admin.create_nc') || request()->routeIs('admin.edit_quote') ? 'active open' : '' }}">
+                                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                    <i class="menu-icon" data-feather="file-text"></i>
+                                    <div data-i18n="Ventas">Ventas</div>
+                                </a>
+                                <ul class="menu-sub">
+                                    <li
+                                        class="menu-item {{ request()->is('billings') || request()->routeIs('admin.create_nc') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.billings') }}" class="menu-link">
+                                            <div data-i18n="Lista de Ventas">Lista de Ventas</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item {{ request()->is('credit-notes') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.credit_notes') }}" class="menu-link">
+                                            <div data-i18n="Notas de Crédito">Notas de Crédito</div>
+                                        </a>
+                                    </li>
+                                    <li
+                                        class="menu-item {{ request()->is('sale-notes') || request()->is('create-sale-note') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.sale_notes') }}" class="menu-link">
+                                            <div data-i18n="Notas de Venta">Notas de Venta</div>
+                                        </a>
+                                    </li>
+                                    <li
+                                        class="menu-item {{ request()->is('quotes') || request()->is('create-quote') || request()->routeIs('admin.edit_quote') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.quotes') }}" class="menu-link">
+                                            <div data-i18n="Cotizaciones">Cotizaciones</div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endcan
+                        @can('admin.buys', 'admin.create_buy', 'admin.bills')
+                            <li
+                                class="menu-item {{ request()->is('bills') || request()->is('buys') || request()->is('create-buy') ? 'active open' : '' }}">
+                                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                    <i class="menu-icon" data-feather="shopping-cart"></i>
+                                    <div data-i18n="Compras">Compras</div>
+                                </a>
+                                <ul class="menu-sub">{{-- 
+                                    <li class="menu-item {{ request()->is('create-buy') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.create_buy') }}" class="menu-link">
+                                            <div data-i18n="Compra de Mercadería">Compra de Mercadería</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item {{ request()->is('buys') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.buys') }}" class="menu-link">
+                                            <div data-i18n="Lista de Compras">Lista de Compras</div>
+                                        </a>
+                                    </li> --}}
+                                    <li class="menu-item {{ request()->is('bills') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.bills') }}" class="menu-link">
+                                            <div data-i18n="Gastos">Gastos</div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endcan
+
+                        @can('admin.products')
+                            <li class="menu-item {{ request()->is('products') ? 'active open' : '' }}">
+                                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                    <i class="menu-icon" data-feather="package"></i>
+                                    <div data-i18n="Inventario">Inventario</div>
+                                </a>
+                                <ul class="menu-sub">
+                                    <li class="menu-item {{ request()->is('products') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.products') }}" class="menu-link">
+                                            <div data-i18n="Productos">Productos</div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endcan
+                        @can('admin.pos')
+                            <li class="menu-item">
+                                <a href="{{ route('admin.pos') }}" class="menu-link window-open-pos"
+                                    data-iduser="{{ Auth::user()['id'] }}" data-idcash="{{ Auth::user()['idcaja'] }}">
+                                    <i class="menu-icon" data-feather="shopping-bag"></i>
+                                    <div data-i18n="Venta rapida POS">Venta rapida POS</div>
+                                </a>
+                            </li>
+                        @endcan
+
+                        @can('admin.clients', 'admin.providers')
+                            <li
+                                class="menu-item {{ request()->is('roles') || request()->is('clients') || request()->is('providers') || request()->is('users') || request()->routeIs('admin.view_role') ? 'active open' : '' }}">
+                                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                    <i class="menu-icon" data-feather="users"></i>
+                                    <div data-i18n="Contactos">Contactos</div>
+                                </a>
+                                <ul class="menu-sub">
+                                    <li class="menu-item {{ request()->is('clients') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.clients') }}" class="menu-link">
+                                            <div data-i18n="Clientes">Clientes</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item {{ request()->is('providers') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.providers') }}" class="menu-link">
+                                            <div data-i18n="Proveedores">Proveedores</div>
+                                        </a>
+                                    </li>
+                                    @can('admin.users', 'admin.roles')
+                                        <li
+                                            class="menu-item {{ request()->is('users') || request()->routeIs('admin.view_role') ? 'active' : '' }}">
+                                            <a href="{{ route('admin.users') }}" class="menu-link">
+                                                <div data-i18n="Usuarios">Usuarios</div>
+                                            </a>
+                                        </li>
+                                        <li class="menu-item {{ request()->is('roles') ? 'active' : '' }}">
+                                            <a href="{{ route('admin.roles') }}" class="menu-link">
+                                                <div data-i18n="Roles">Roles</div>
+                                            </a>
+                                        </li>
+                                    @endcan
+                                </ul>
+                            </li>
+                        @endcan
+                        <!-- Extended components -->
+                        @can('admin.sales_general', 'admin.sales_seller', 'admin.purchases_general',
+                            'admin.purchases_provider', 'admin.purchases_expenses', 'admin.contact_customers',
+                            'admin.contact_providers', 'admin.inventory_products')
+                            <li
+                                class="menu-item {{ request()->is('inventories-items') || request()->is('contacts-customers') || request()->is('contacts-providers') || request()->is('purchases-expenses') || request()->is('purchases-provider') || request()->is('purchases-general') || request()->is('sales-general') || request()->is('sales-seller') || request()->is('sales-product') ? 'active open' : '' }}">
+                                <a href="javascript:void(0)" class="menu-link menu-toggle">
+                                    <i class="menu-icon" data-feather="calendar"></i>
+                                    <div data-i18n="Reportes">Reportes</div>
+                                </a>
+                                <ul class="menu-sub">
+                                    <li
+                                        class="menu-item {{ request()->is('sales-general') || request()->is('sales-seller') || request()->is('sales-product') ? 'open active' : '' }}">
+                                        <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                            <div data-i18n="Ventas">Ventas</div>
+                                        </a>
+                                        <ul class="menu-sub">
+                                            <li class="menu-item {{ request()->is('sales-general') ? 'active' : '' }}">
+                                                <a href="{{ route('admin.sales_general') }}" class="menu-link">
+                                                    <div data-i18n="Ventas General">Ventas General</div>
+                                                </a>
+                                            </li>
+                                            <li class="menu-item {{ request()->is('sales-seller') ? 'active' : '' }}">
+                                                <a href="{{ route('admin.sales_seller') }}" class="menu-link">
+                                                    <div data-i18n="Ventas por Vendedor">Ventas por Vendedor</div>
+                                                </a>
+                                            </li>
+                                            <li class="menu-item {{ request()->is('sales-product') ? 'active' : '' }}">
+                                                <a href="{{ route('admin.sales_product') }}" class="menu-link">
+                                                    <div data-i18n="Prod. más Vendidos">Prod. más Vendidos</div>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
+
+                                    <li
+                                        class="menu-item {{ request()->is('purchases-expenses') || request()->is('purchases-provider') || request()->is('purchases-general') ? 'open active' : '' }}">
+                                        <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                            <div data-i18n="Compras">Compras</div>
+                                        </a>
+                                        <ul class="menu-sub">
+                                            <li
+                                                class="menu-item {{ request()->is('purchases-general') ? 'active' : '' }}">
+                                                <a href="{{ route('admin.purchases_general') }}" class="menu-link">
+                                                    <div data-i18n="Compras General">Compras General</div>
+                                                </a>
+                                            </li>
+                                            <li
+                                                class="menu-item {{ request()->is('purchases-provider') ? 'active' : '' }}">
+                                                <a href="{{ route('admin.purchases_provider') }}" class="menu-link">
+                                                    <div data-i18n="Compras Proveedor">Compras Proveedor</div>
+                                                </a>
+                                            </li>
+                                            <li
+                                                class="menu-item {{ request()->is('purchases-expenses') ? 'active' : '' }}">
+                                                <a href="{{ route('admin.purchases_expenses') }}" class="menu-link">
+                                                    <div data-i18n="Gastos">Gastos</div>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
+
+                                    <li
+                                        class="menu-item {{ request()->is('contacts-customers') || request()->is('contacts-providers') ? 'open active' : '' }}">
+                                        <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                            <div data-i18n="Contactos">Contactos</div>
+                                        </a>
+                                        <ul class="menu-sub">
+                                            <li
+                                                class="menu-item {{ request()->is('contacts-customers') ? 'active' : '' }}">
+                                                <a href="{{ route('admin.contact_customers') }}" class="menu-link">
+                                                    <div data-i18n="Clientes">Clientes</div>
+                                                </a>
+                                            </li>
+                                            <li
+                                                class="menu-item {{ request()->is('contacts-providers') ? 'active' : '' }}">
+                                                <a href="{{ route('admin.contact_providers') }}" class="menu-link">
+                                                    <div data-i18n="Proveedores">Proveedores</div>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="menu-item {{ request()->is('inventories-items') ? 'open active' : '' }}">
+                                        <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                            <div data-i18n="Inventario">Inventario</div>
+                                        </a>
+                                        <ul class="menu-sub">
+                                            <li
+                                                class="menu-item {{ request()->is('inventories-items') ? 'active' : '' }}">
+                                                <a href="{{ route('admin.inventory_products') }}" class="menu-link">
+                                                    <div data-i18n="Productos">Productos</div>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endcan
+
+                        @can('admin.series', 'admin.rooms', 'admin.tables', 'admin.list_cashes')
+                            <li
+                                class="menu-item {{ request()->is('list-cashes') || request()->is('series') || request()->is('business') || request()->is('rooms') || request()->is('tables') || request()->is('countries') ? 'active open' : '' }}">
+                                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                    <i class="menu-icon" data-feather="settings"></i>
+                                    <div data-i18n="Configuración">Configuración</div>
+                                </a>
+                                <ul class="menu-sub">
+                                    @can('admin.business')
+                                        <li class="menu-item {{ request()->is('business') ? 'active' : '' }}">
+                                            <a href="{{ route('admin.business') }}" class="menu-link">
+                                                <div data-i18n="Empresa">Empresa</div>
+                                            </a>
+                                        </li>
+                                    @endcan
+                                    <li class="menu-item {{ request()->is('rooms') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.rooms') }}" class="menu-link">
+                                            <div data-i18n="Salas">Salas</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item {{ request()->is('tables') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.tables') }}" class="menu-link">
+                                            <div data-i18n="Mesas">Mesas</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item {{ request()->is('series') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.series') }}" class="menu-link">
+                                            <div data-i18n="Series">Series</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item {{ request()->is('list-cashes') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.list_cashes') }}" class="menu-link">
+                                            <div data-i18n="Cajas">Cajas</div>
+                                        </a>
+                                    </li>
+
+                                    <li class="menu-item {{ request()->is('countries') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.countries') }}" class="menu-link">
+                                            <div data-i18n="Paises">Paises</div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endcan
+                    </ul>
+                </aside>
+                <!-- / Menu -->
+            @endif
+
+
+            <!-- Layout container -->
+            <div class="layout-page">
+
+                <!-- Navbar -->
+                <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+                    id="layout-navbar">
+                    <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+                        <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+                            <i class="ti ti-menu-2 ti-sm"></i>
+                        </a>
                     </div>
-                  </div>
-                </li>
-                <!-- Quick links -->
 
-
-                <!-- Notification -->
-                <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-1">
-                  <a
-                    class="nav-link dropdown-toggle hide-arrow"
-                    href="javascript:void(0);"
-                    data-bs-toggle="dropdown"
-                    data-bs-auto-close="outside"
-                    aria-expanded="false">
-                    <i class="ti ti-bell ti-md"></i>
-                    <span id="wrapper_badge_noti" class="badge bg-danger rounded-pill badge-notifications d-none"></span>
-                  </a>
-                  <ul class="dropdown-menu dropdown-menu-end py-0">
-                    <li class="dropdown-menu-header border-bottom">
-                      <div class="dropdown-header d-flex align-items-center py-3">
-                        <h5 class="text-body mb-0 me-auto">Notificaciones</h5>
-                      </div>
-                    </li>
-                    <li class="dropdown-notifications-list scrollable-container">
-                      <ul class="list-group list-group-flush">
-                        <li id="wrapper_f" class="list-group-item list-group-item-action dropdown-notifications-item d-none">
-                          <a href="{{ route('admin.alerts_sale') }}">
-                            <div class="d-flex">
-                              <div class="flex-shrink-0 me-3">
-                                <div class="avatar">
-                                  <span class="avatar-initial rounded-circle bg-label-danger">
-                                    <i class="fa fa-file-invoice"></i>
-                                  </span>
-                                </div>
-                              </div>
-                              <div class="flex-grow-1">
-                                <h6 class="mb-1"></h6>
-                                <small class="text-muted">Pendientes de envío</small>
-                              </div>
+                    <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+                        <!-- Search -->
+                        <div class="navbar-nav align-items-center">
+                            <div class="nav-item navbar-search-wrapper mb-0">
+                                <a class="nav-item nav-link search-toggler d-flex align-items-center px-0"
+                                    href="javascript:void(0);"></a>
                             </div>
-                          </a>
-                        </li>
-
-                        <li id="wrapper_b" class="list-group-item list-group-item-action dropdown-notifications-item d-none">
-                          <a href="{{ route('admin.alerts_sale') }}">
-                            <div class="d-flex">
-                              <div class="flex-shrink-0 me-3">
-                                <div class="avatar">
-                                  <span class="avatar-initial rounded-circle bg-label-warning">
-                                    <i class="fa fa-file-alt"></i>
-                                  </span>
-                                </div>
-                              </div>
-                              <div class="flex-grow-1">
-                                <h6 class="mb-1"></h6>
-                                <small class="text-muted">Pendientes de envío</small>
-                              </div>
-                            </div>
-                          </a>
-                        </li>
-
-                        <li id="wrapper_s" class="list-group-item list-group-item-action dropdown-notifications-item d-none">
-                          <a href="{{ route('admin.alerts_stock') }}">
-                            <div class="d-flex">
-                              <div class="flex-shrink-0 me-3">
-                                <div class="avatar">
-                                  <span class="avatar-initial rounded-circle bg-label-primary">
-                                    <i class="fa fa-boxes"></i>
-                                  </span>
-                                </div>
-                              </div>
-                              <div class="flex-grow-1">
-                                <h6 class="mb-1"></h6>
-                                <small class="text-muted">Productos por agotarse</small>
-                              </div>
-                            </div>
-                          </a>
-                        </li>
-
-                        <li id="wrapper_e" class="list-group-item list-group-item-action dropdown-notifications-item d-none">
-                          <a href="{{ route('admin.alerts_expiration') }}">
-                            <div class="d-flex">
-                              <div class="flex-shrink-0 me-3">
-                                <div class="avatar">
-                                  <span class="avatar-initial rounded-circle bg-label-info">
-                                    <i class="fa fa-boxes"></i>
-                                  </span>
-                                </div>
-                              </div>
-                              <div class="flex-grow-1">
-                                <h6 class="mb-1">2 PRODUCTOS</h6>
-                                <small class="text-muted">Productos por vencer</small>
-                              </div>
-                            </div>
-                          </a>
-                        </li>
-                        
-                        <li id="wrapper_empty" class="list-group-item list-group-item-action dropdown-notifications-item d-none">
-                          <div class="d-flex">
-                            <div class="flex-shrink-0 me-3">
-                              <div class="avatar">
-                                <span class="avatar-initial rounded-circle bg-label-success">
-                                  <i class="fa fa-check"></i>
-                                </span>
-                              </div>
-                            </div>
-                            <div class="flex-grow-1">
-                              <h6 class="mb-1 mt-2">No tiene alertas pendientes</h6>
-                            </div>
-                          </div>
-                        </li>
-
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-                <!--/ Notification -->
-                @endif
-
-
-                <li class="nav-item navbar-dropdown dropdown-user dropdown">
-                  <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-                    <div class="avatar avatar-online">
-                      <img src="{{ asset('assets/img/avatars/avatar.png') }}" width="10px" alt class="h-auto rounded-circle" />
-                    </div>
-                  </a>
-                  <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                      <a class="dropdown-item" href="{{ route('admin.home') }}">
-                        <div class="d-flex">
-                          <div class="flex-shrink-0 me-3">
-                            <div class="avatar avatar-online">
-                              <img src="{{ asset('assets/img/avatars/avatar.png') }}" width="10px" alt class="h-auto rounded-circle" />
-                            </div>
-                          </div>
-                          <div class="flex-grow-1">
-                            <span class="fw-semibold d-block">{{ Auth::user()['nombres'] }}</span>
-                            <small class="text-muted">Admin</small>
-                          </div>
                         </div>
-                      </a>
-                    </li>
-                    @can('admin.prices', 'admin.faq')
-                    <li>
-                      <div class="dropdown-divider"></div>
-                    </li>
-                    <li>
-                      <a class="dropdown-item" href="{{ route('admin.faq') }}">
-                        <i class="ti ti-help me-2 ti-sm"></i>
-                        <span class="align-middle">FAQ</span>
-                      </a>
-                    </li>
-                    {{-- <li>
+                        <!-- /Search -->
+
+                        <ul class="navbar-nav flex-row align-items-center ms-auto">
+                            <!-- Style Switcher -->
+                            <li class="nav-item me-2 me-xl-0">
+                                <a class="nav-link style-switcher-toggle hide-arrow" href="javascript:void(0);">
+                                    <i class="ti ti-md"></i>
+                                </a>
+                            </li>
+                            <!--/ Style Switcher -->
+
+                            <!-- Quick links  -->
+                            @if ($role != 'COCINA')
+                                <li class="nav-item dropdown-shortcuts navbar-dropdown dropdown me-2 me-xl-0">
+                                    <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);"
+                                        data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                        <i class="ti ti-layout-grid-add ti-md"></i>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end py-0">
+                                        <div class="dropdown-menu-header border-bottom">
+                                            <div class="dropdown-header d-flex align-items-center py-3">
+                                                <h5 class="text-body mb-0 me-auto">Atajos</h5>
+                                            </div>
+                                        </div>
+                                        <div class="dropdown-shortcuts-list scrollable-container">
+                                            <div class="row row-bordered overflow-visible g-0">
+                                                <div class="dropdown-shortcuts-item col">
+                                                    <span class="dropdown-shortcuts-icon rounded-circle mb-2">
+                                                        <i class="ti ti-file-invoice fs-4"></i>
+                                                    </span>
+                                                    <a href="{{ route('admin.pos') }}"
+                                                        class="stretched-link  window-open-pos"
+                                                        data-iduser="{{ Auth::user()['id'] }}"
+                                                        data-idcash="{{ Auth::user()['idcaja'] }}">Facturaci&oacute;n</a>
+                                                    <small class="text-muted mb-0">Abrir Terminal POS</small>
+                                                </div>
+                                                <div class="dropdown-shortcuts-item col">
+                                                    <span class="dropdown-shortcuts-icon rounded-circle mb-2">
+                                                        <i class="ti ti-users fs-4"></i>
+                                                    </span>
+                                                    <a href="{{ route('admin.clients') }}"
+                                                        class="stretched-link">Contactos</a>
+                                                    <small class="text-muted mb-0">Gesti&oacute;n de Clientes</small>
+                                                </div>
+                                            </div>
+                                            <div class="row row-bordered overflow-visible g-0">
+                                                <div class="dropdown-shortcuts-item col">
+                                                    <span class="dropdown-shortcuts-icon rounded-circle mb-2">
+                                                        <i class="ti ti-chart-bar fs-4"></i>
+                                                    </span>
+                                                    <a href="{{ route('admin.home') }}"
+                                                        class="stretched-link">Dashboard</a>
+                                                    <small class="text-muted mb-0">Panel Principal</small>
+                                                </div>
+                                                <div class="dropdown-shortcuts-item col">
+                                                    <span class="dropdown-shortcuts-icon rounded-circle mb-2">
+                                                        <i class="ti ti-settings fs-4"></i>
+                                                    </span>
+                                                    <a href="{{ route('admin.business') }}"
+                                                        class="stretched-link">Configuraci&oacute;n</a>
+                                                    <small class="text-muted mb-0">Empresa</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <!-- Quick links -->
+
+
+                                <!-- Notification -->
+                                <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-1">
+                                    <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);"
+                                        data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                        <i class="ti ti-bell ti-md"></i>
+                                        <span id="wrapper_badge_noti"
+                                            class="badge bg-danger rounded-pill badge-notifications d-none"></span>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end py-0">
+                                        <li class="dropdown-menu-header border-bottom">
+                                            <div class="dropdown-header d-flex align-items-center py-3">
+                                                <h5 class="text-body mb-0 me-auto">Notificaciones</h5>
+                                            </div>
+                                        </li>
+                                        <li class="dropdown-notifications-list scrollable-container">
+                                            <ul class="list-group list-group-flush">
+                                                <li id="wrapper_f"
+                                                    class="list-group-item list-group-item-action dropdown-notifications-item d-none">
+                                                    <a href="{{ route('admin.alerts_sale') }}">
+                                                        <div class="d-flex">
+                                                            <div class="flex-shrink-0 me-3">
+                                                                <div class="avatar">
+                                                                    <span
+                                                                        class="avatar-initial rounded-circle bg-label-danger">
+                                                                        <i class="fa fa-file-invoice"></i>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex-grow-1">
+                                                                <h6 class="mb-1"></h6>
+                                                                <small class="text-muted">Pendientes de envío</small>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                </li>
+
+                                                <li id="wrapper_b"
+                                                    class="list-group-item list-group-item-action dropdown-notifications-item d-none">
+                                                    <a href="{{ route('admin.alerts_sale') }}">
+                                                        <div class="d-flex">
+                                                            <div class="flex-shrink-0 me-3">
+                                                                <div class="avatar">
+                                                                    <span
+                                                                        class="avatar-initial rounded-circle bg-label-warning">
+                                                                        <i class="fa fa-file-alt"></i>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex-grow-1">
+                                                                <h6 class="mb-1"></h6>
+                                                                <small class="text-muted">Pendientes de envío</small>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                </li>
+
+                                                <li id="wrapper_s"
+                                                    class="list-group-item list-group-item-action dropdown-notifications-item d-none">
+                                                    <a href="{{ route('admin.alerts_stock') }}">
+                                                        <div class="d-flex">
+                                                            <div class="flex-shrink-0 me-3">
+                                                                <div class="avatar">
+                                                                    <span
+                                                                        class="avatar-initial rounded-circle bg-label-primary">
+                                                                        <i class="fa fa-boxes"></i>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex-grow-1">
+                                                                <h6 class="mb-1"></h6>
+                                                                <small class="text-muted">Productos por
+                                                                    agotarse</small>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                </li>
+
+                                                <li id="wrapper_e"
+                                                    class="list-group-item list-group-item-action dropdown-notifications-item d-none">
+                                                    <a href="{{ route('admin.alerts_expiration') }}">
+                                                        <div class="d-flex">
+                                                            <div class="flex-shrink-0 me-3">
+                                                                <div class="avatar">
+                                                                    <span
+                                                                        class="avatar-initial rounded-circle bg-label-info">
+                                                                        <i class="fa fa-boxes"></i>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex-grow-1">
+                                                                <h6 class="mb-1">2 PRODUCTOS</h6>
+                                                                <small class="text-muted">Productos por vencer</small>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                </li>
+
+                                                <li id="wrapper_empty"
+                                                    class="list-group-item list-group-item-action dropdown-notifications-item d-none">
+                                                    <div class="d-flex">
+                                                        <div class="flex-shrink-0 me-3">
+                                                            <div class="avatar">
+                                                                <span
+                                                                    class="avatar-initial rounded-circle bg-label-success">
+                                                                    <i class="fa fa-check"></i>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex-grow-1">
+                                                            <h6 class="mb-1 mt-2">No tiene alertas pendientes</h6>
+                                                        </div>
+                                                    </div>
+                                                </li>
+
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <!--/ Notification -->
+                            @endif
+
+
+                            <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                                <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);"
+                                    data-bs-toggle="dropdown">
+                                    <div class="avatar avatar-online">
+                                        <img src="{{ asset('assets/img/avatars/avatar.png') }}" width="10px" alt
+                                            class="h-auto rounded-circle" />
+                                    </div>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('admin.home') }}">
+                                            <div class="d-flex">
+                                                <div class="flex-shrink-0 me-3">
+                                                    <div class="avatar avatar-online">
+                                                        <img src="{{ asset('assets/img/avatars/avatar.png') }}"
+                                                            width="10px" alt class="h-auto rounded-circle" />
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <span
+                                                        class="fw-semibold d-block">{{ Auth::user()['nombres'] }}</span>
+                                                    <small class="text-muted">Admin</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    @can('admin.prices', 'admin.faq')
+                                        <li>
+                                            <div class="dropdown-divider"></div>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('admin.faq') }}">
+                                                <i class="ti ti-help me-2 ti-sm"></i>
+                                                <span class="align-middle">FAQ</span>
+                                            </a>
+                                        </li>
+                                        {{-- <li>
                       <a class="dropdown-item" href="{{ route('admin.prices') }}">
                         <i class="ti ti-currency-dollar me-2 ti-sm"></i>
                         <span class="align-middle">Precios</span>
                       </a>
                     </li> --}}
-                    @endcan
-                    <li>
-                      <div class="dropdown-divider"></div>
-                    </li>
-                    <li>
-                      <a class="dropdown-item" href="{{ route('login.logout') }}">
-                        <i class="ti ti-logout me-2 ti-sm"></i>
-                        <span class="align-middle"> Salir</span>
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-                <!--/ User -->
-              </ul>
-            </div>
+                                    @endcan
+                                    <li>
+                                        <div class="dropdown-divider"></div>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('login.logout') }}">
+                                            <i class="ti ti-logout me-2 ti-sm"></i>
+                                            <span class="align-middle"> Salir</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <!--/ User -->
+                        </ul>
+                    </div>
 
-            <!-- Search Small Screens -->
-            <div class="navbar-search-wrapper search-input-wrapper d-none">
-              <input
-                type="text"
-                class="form-control search-input container-xxl border-0"
-                placeholder="Buscar..."
-                aria-label="Search..." />
-              <i class="ti ti-x ti-sm search-toggler cursor-pointer"></i>
-            </div>
-          </nav>
-         
-          <!-- / Navbar -->
+                    <!-- Search Small Screens -->
+                    <div class="navbar-search-wrapper search-input-wrapper d-none">
+                        <input type="text" class="form-control search-input container-xxl border-0"
+                            placeholder="Buscar..." aria-label="Search..." />
+                        <i class="ti ti-x ti-sm search-toggler cursor-pointer"></i>
+                    </div>
+                </nav>
 
-          <!-- Content wrapper -->
-          <div class="content-wrapper">
-            <!-- Content -->
-            <div class="container-xxl flex-grow-1 container-p-y">
-              @yield('content')
+                <!-- / Navbar -->
+
+                <!-- Content wrapper -->
+                <div class="content-wrapper">
+                    <!-- Content -->
+                    <div class="container-xxl flex-grow-1 container-p-y">
+                        @yield('content')
+                    </div>
+                    <!-- / Content -->
+                    <div class="content-backdrop fade"></div>
+                </div>
+                <!-- Content wrapper -->
             </div>
-            <!-- / Content -->
-            <div class="content-backdrop fade"></div>
-          </div>
-          <!-- Content wrapper -->
+            <!-- / Layout page -->
         </div>
-        <!-- / Layout page -->
-      </div>
 
-      <!-- Overlay -->
-      <div class="layout-overlay layout-menu-toggle"></div>
+        <!-- Overlay -->
+        <div class="layout-overlay layout-menu-toggle"></div>
 
-      <!-- Drag Target Area To SlideIn Menu On Small Screens -->
-      <div class="drag-target"></div>
+        <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+        <div class="drag-target"></div>
     </div>
     <!-- / Layout wrapper -->
 
@@ -801,8 +835,9 @@
 
     <script src="{{ asset('js/app.js') }}"></script>
 
-    
+
     @include('admin.js-home')
     @yield('scripts')
-  </body>
+</body>
+
 </html>
