@@ -545,106 +545,120 @@ class OrderController extends Controller
             ]);
             return;
         }
+        DB::beginTransaction();
+        try {
+            $idtable            = $request->input('idtable');
+            $table              = Table::where('id', $idtable)->first();
+            $observaciones      = trim($request->input('observaciones'));
+            $cart               = $this->create_cart($idtable);
+            $idusuario          = Auth::user()['id'];
+            if (empty($cart[$idtable]['products'])) {
+                echo json_encode([
+                    'status'    => false,
+                    'msg'       => 'Debe ingresar al menos 1 producto',
+                    'type'      => 'warning'
+                ]);
+                return;
+            }
 
-        $idtable            = $request->input('idtable');
-        $table              = Table::where('id', $idtable)->first();
-        $observaciones      = trim($request->input('observaciones'));
-        $cart               = $this->create_cart($idtable);
-        $idusuario          = Auth::user()['id'];
-        if (empty($cart[$idtable]['products'])) {
+            Order::insert([
+                'fecha'         => date('Y-m-d'),
+                'hora'          => date('H:i:s'),
+                'exonerada'     => $cart[$idtable]['exonerada'],
+                'inafecta'      => $cart[$idtable]['inafecta'],
+                'gravada'       => $cart[$idtable]['gravada'],
+                'anticipo'      => "0.00",
+                'igv'           => $cart[$idtable]['igv'],
+                'gratuita'      => "0.00",
+                'otros_cargos'  => "0.00",
+                'total'         => $cart[$idtable]['total'],
+                'observaciones' => $observaciones,
+                'idusuario'     => $idusuario,
+                'idmesa'        => $idtable,
+                'created_at' => Carbon::now('America/Costa_Rica')->format('Y-m-d H:i:s')
+            ]);
+
+            $idorden            = Order::latest('id')->first()['id'];
+            foreach ($cart[$idtable]['products'] as $product) {
+                DetailOrder::insert([
+                    'idorden'           => $idorden,
+                    'idproducto'        => $product["id"],
+                    'cantidad'          => $product["cantidad"],
+                    'descuento'         => 0.0000000000,
+                    'igv'               => $product["igv"],
+                    'id_afectacion_igv' => $product["idcodigo_igv"],
+                    'precio_unitario'   => $product["precio_venta"],
+                    'precio_total'      => ($product["precio_venta"] * $product["cantidad"]),
+                    'created_at' => Carbon::now('America/Costa_Rica')->format('Y-m-d H:i:s')
+                ]);
+            }
+
+            foreach ($cart[$idtable]['products'] as $product) {
+                DetailKitchenOrder::insert([
+                    'idorden'           => $idorden,
+                    'idproducto'        => $product["id"],
+                    'cantidad'          => $product["cantidad"],
+                    'descuento'         => 0.0000000000,
+                    'igv'               => $product["igv"],
+                    'id_afectacion_igv' => $product["idcodigo_igv"],
+                    'precio_unitario'   => $product["precio_venta"],
+                    'precio_total'      => ($product["precio_venta"] * $product["cantidad"]),
+                    'estado_producto'   => $product["show_product"] == 0 ? 1 : 0,
+                    'created_at' => Carbon::now('America/Costa_Rica')->format('Y-m-d H:i:s')
+                ]);
+            }
+
+            $name               = uniqid();
+            $customPaper        = array(0, 0, 450.00, 210.00);
+            $data['business']   = Business::where('id', 1)->first();
+            $data['ubigeo']     = $this->get_ubigeo($data['business']->ubigeo);
+            $data['table']      = Table::where('id', $idtable)->first();
+            $data['mesero']     = User::where('id', $idusuario)->first();
+            $data['order']      = Order::where('id', $idorden)->first();
+            $data['detalle']    = DetailOrder::select(
+                'detail_orders.*',
+                'products.descripcion as producto',
+                'products.codigo_interno as codigo_interno',
+                'units.codigo as unidad'
+            )
+                ->join('products', 'detail_orders.idproducto', '=', 'products.id')
+                ->join('units', 'products.idunidad', '=', 'units.id')
+                ->where('idorden', $idorden)
+                ->get();
+
+            $pdf                = PDF::loadView('admin.orders.register.comanda', $data)->setPaper($customPaper, 'landscape');
+            $pdf->save(public_path('files/orders/commands/' . $name . '.pdf'));
+
+            Order::where('id', $idorden)->update([
+                'ticket_comanda'    => $name . '.pdf',
+                'estado'            => 0
+            ]);
+            Table::where('id', $idtable)->update([
+                'estado'    => 0,
+                'idorden'   => $idorden
+            ]);
+            $this->destroy_cart($idtable);
+
+            // Events
+            event(new NewOrderEvent('Nuevo pedido en ' . $table->descripcion));
+            event(new UpdateKitchenEvent());
+            DB::commit();
+
+            echo json_encode([
+                'status'    => true,
+                'msg'       => 'Pedido realizado con éxito',
+                'type'      => 'success',
+                'idmesa'    => $idtable
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
             echo json_encode([
                 'status'    => false,
-                'msg'       => 'Debe ingresar al menos 1 producto',
-                'type'      => 'warning'
-            ]);
-            return;
-        }
-
-        Order::insert([
-            'fecha'         => date('Y-m-d'),
-            'hora'          => date('H:i:s'),
-            'exonerada'     => $cart[$idtable]['exonerada'],
-            'inafecta'      => $cart[$idtable]['inafecta'],
-            'gravada'       => $cart[$idtable]['gravada'],
-            'anticipo'      => "0.00",
-            'igv'           => $cart[$idtable]['igv'],
-            'gratuita'      => "0.00",
-            'otros_cargos'  => "0.00",
-            'total'         => $cart[$idtable]['total'],
-            'observaciones' => $observaciones,
-            'idusuario'     => $idusuario,
-            'idmesa'        => $idtable
-        ]);
-
-        $idorden            = Order::latest('id')->first()['id'];
-        foreach ($cart[$idtable]['products'] as $product) {
-            DetailOrder::insert([
-                'idorden'           => $idorden,
-                'idproducto'        => $product["id"],
-                'cantidad'          => $product["cantidad"],
-                'descuento'         => 0.0000000000,
-                'igv'               => $product["igv"],
-                'id_afectacion_igv' => $product["idcodigo_igv"],
-                'precio_unitario'   => $product["precio_venta"],
-                'precio_total'      => ($product["precio_venta"] * $product["cantidad"])
+                'msg'       => $th->getMessage(),
+                'type'      => 'success',
+                'idmesa'    => $idtable
             ]);
         }
-
-        foreach ($cart[$idtable]['products'] as $product) {
-            DetailKitchenOrder::insert([
-                'idorden'           => $idorden,
-                'idproducto'        => $product["id"],
-                'cantidad'          => $product["cantidad"],
-                'descuento'         => 0.0000000000,
-                'igv'               => $product["igv"],
-                'id_afectacion_igv' => $product["idcodigo_igv"],
-                'precio_unitario'   => $product["precio_venta"],
-                'precio_total'      => ($product["precio_venta"] * $product["cantidad"]),
-                'estado_producto'   => 0
-            ]);
-        }
-
-        $name               = uniqid();
-        $customPaper        = array(0, 0, 450.00, 210.00);
-        $data['business']   = Business::where('id', 1)->first();
-        $data['ubigeo']     = $this->get_ubigeo($data['business']->ubigeo);
-        $data['table']      = Table::where('id', $idtable)->first();
-        $data['mesero']     = User::where('id', $idusuario)->first();
-        $data['order']      = Order::where('id', $idorden)->first();
-        $data['detalle']    = DetailOrder::select(
-            'detail_orders.*',
-            'products.descripcion as producto',
-            'products.codigo_interno as codigo_interno',
-            'units.codigo as unidad'
-        )
-            ->join('products', 'detail_orders.idproducto', '=', 'products.id')
-            ->join('units', 'products.idunidad', '=', 'units.id')
-            ->where('idorden', $idorden)
-            ->get();
-
-        $pdf                = PDF::loadView('admin.orders.register.comanda', $data)->setPaper($customPaper, 'landscape');
-        $pdf->save(public_path('files/orders/commands/' . $name . '.pdf'));
-
-        Order::where('id', $idorden)->update([
-            'ticket_comanda'    => $name . '.pdf',
-            'estado'            => 0
-        ]);
-        Table::where('id', $idtable)->update([
-            'estado'    => 0,
-            'idorden'   => $idorden
-        ]);
-        $this->destroy_cart($idtable);
-
-        // Events
-        event(new NewOrderEvent('Nuevo pedido en ' . $table->descripcion));
-        event(new UpdateKitchenEvent());
-
-        echo json_encode([
-            'status'    => true,
-            'msg'       => 'Pedido realizado con éxito',
-            'type'      => 'success',
-            'idmesa'    => $idtable
-        ]);
     }
 
     public function createOrderFromAPI(Request $request)
@@ -1527,21 +1541,22 @@ class OrderController extends Controller
                 $productos[$order->id] = DetailKitchenOrder::select('detail_kitchen_orders.*', 'products.descripcion as descripcion', 'products.nombre as nombre')
                     ->join('products', 'detail_kitchen_orders.idproducto', '=', 'products.id')
                     ->where('idorden', $order->id)
+                    ->where('products.show_product', 1) // Excluir productos con show_product = 0
                     ->get();
             }
 
             foreach ($orders as $order) {
                 $mesa = Table::where('idorden', $order->id)->first();
                 $descripcionMesa = $mesa ? $mesa->descripcion : 'PREPARAR (SIN MESA)';
-                $minutos = Carbon::parse($order->updated_at)->diffInMinutes(Carbon::now());
+                $minutos = Carbon::parse($order->created_at)->diffInMinutes(Carbon::now('America/Costa_Rica')->format('Y-m-d H:i:s'));
                 $tiempo_finalizado = 0;
                 $pedido_min_fin = 0;
                 $countOrderActive = DetailKitchenOrder::where('idorden', $order->id)->where('estado_producto', 0)->count();
                 if ($countOrderActive == 0) {
                     $pedidoFinalizado = DetailKitchenOrder::where('estado_producto', 1)
-                        ->orderBy('updated_at', 'desc')->first();
+                        ->orderBy('fecha_finalizacion', 'desc')->first();
                     if ($pedidoFinalizado) {
-                        $pedido_min_fin = Carbon::parse($order->updated_at)->diffInMinutes($pedidoFinalizado->updated_at);
+                        $pedido_min_fin = Carbon::parse($order->created_at)->diffInMinutes($pedidoFinalizado->fecha_finalizacion);
                     }
                 }
                 $tiempo = $minutos < 60
@@ -1553,7 +1568,7 @@ class OrderController extends Controller
                         : intdiv($pedido_min_fin, 60) . ' horas ' . ($pedido_min_fin % 60) . ' min';
                 }
                 $tiempo_fin_text = $tiempo_finalizado > 0 ? ' (Terminado en: ' . $tiempo_finalizado . ')' : '';
-
+                $cantidadProductos = isset($productos[$order->id]) ? $productos[$order->id]->count() : 0;
                 $html .= '<div class="col-md-3 mb-3">
                             <div class="card mb-6">
                                 <div class="card-title p-3 header-elements alert alert-info">
@@ -1565,7 +1580,8 @@ class OrderController extends Controller
                                         </span>
                                     </div>
                                 </div>
-                                <div style="flex: 1 1 auto; padding: 0.6rem 0.6rem">';
+                                <div style="flex: 1 1 auto; padding: 0.6rem 0.6rem">
+                                 <p class="card-text text-muted mb-3"><strong>Total de productos: </strong>' . $cantidadProductos . '</p>';
 
                 if (!empty($order->observaciones)) {
                     $html .= '<p class="card-text text-muted mb-3"><strong>Notas para esta orden:</strong> ' . $order->observaciones . '</p>';
@@ -1611,28 +1627,36 @@ class OrderController extends Controller
         ]);
     }
 
+
     public function change_status(Request $request)
     {
         if (!$request->ajax()) {
             echo json_encode([
-                'status'    => false,
-                'msg'       => 'Intente de nuevo',
-                'type'      => 'warning'
+                'status' => false,
+                'msg'    => 'Intente de nuevo',
+                'type'   => 'warning'
             ]);
             return;
         }
 
-        $iddetalle          = (int) $request->input('iddetalle');
-        $idproducto         = (int) $request->input('idproducto');
-        $idorden            = (int) $request->input('idorden');
-        DetailKitchenOrder::where('id', $iddetalle)->where('idorden', $idorden)->where('idproducto', $idproducto)->update([
-            'estado_producto'   => 1
-        ]);
+        $iddetalle  = (int) $request->input('iddetalle');
+        $idproducto = (int) $request->input('idproducto');
+        $idorden    = (int) $request->input('idorden');
+
+        // Obtener la hora actual de Costa Rica
+        $fechaActualCR = Carbon::now('America/Costa_Rica')->format('Y-m-d H:i:s');
+        DetailKitchenOrder::where('id', $iddetalle)
+            ->where('idorden', $idorden)
+            ->where('idproducto', $idproducto)
+            ->update([
+                'estado_producto' => 1,
+                'fecha_finalizacion'     => $fechaActualCR
+            ]);
 
         echo json_encode([
-            'status'        => true,
-            'msg'           => 'Actualizado correctamente',
-            'type'          => 'success'
+            'status' => true,
+            'msg'    => 'Línea realizada',
+            'type'   => 'success'
         ]);
     }
 
@@ -1744,6 +1768,7 @@ class OrderController extends Controller
                 'igv'               => $product->igv,
                 'precio_compra'     => $product->precio_compra,
                 'precio_venta'      => $precio,
+                'show_product'      => $product->show_product,
                 'impuesto'          => $product->impuesto,
                 'cantidad'          => $cantidad,
                 'idtable'           => $idtable
