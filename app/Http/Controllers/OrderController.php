@@ -1554,9 +1554,11 @@ class OrderController extends Controller
                 $countOrderActive = DetailKitchenOrder::where('idorden', $order->id)->where('estado_producto', 0)->count();
                 if ($countOrderActive == 0) {
                     $pedidoFinalizado = DetailKitchenOrder::where('estado_producto', 1)
+                        ->where('idorden', $order->id)
                         ->orderBy('fecha_finalizacion', 'desc')->first();
                     if ($pedidoFinalizado) {
-                        $pedido_min_fin = Carbon::parse($order->created_at)->diffInMinutes($pedidoFinalizado->fecha_finalizacion);
+                        $pedido_min_fin = Carbon::parse($order->created_at)->setTimezone('America/Costa_Rica')
+                            ->diffInMinutes(Carbon::parse($pedidoFinalizado->fecha_finalizacion)->setTimezone('America/Costa_Rica'));
                     }
                 }
                 $tiempo = $minutos < 60
@@ -1652,7 +1654,7 @@ class OrderController extends Controller
                 'estado_producto' => 1,
                 'fecha_finalizacion'     => $fechaActualCR
             ]);
-
+        event(new UpdateKitchenEvent());
         echo json_encode([
             'status' => true,
             'msg'    => 'Línea realizada',
